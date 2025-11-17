@@ -13,9 +13,19 @@ public static class ObjectExtension
 
         return obj;
     }
-    
+
     public static T? As<T>(this object? obj) where T : class
     {
         return obj as T;
+    }
+
+    public static T Cast<T>(this object obj) where T : class
+    {
+        return (T)obj;
+    }
+
+    public static IEnumerable<T> ToEnumerable<T>(this T obj) where T : class
+    {
+        return [obj,];
     }
 }
