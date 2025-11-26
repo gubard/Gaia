@@ -1,4 +1,4 @@
-﻿using Gaia.Enums;
+﻿using Gaia.Models;
 
 namespace Gaia.Helpers;
 

@@ -1,6 +1,6 @@
-﻿using Gaia.Enums;
-using Gaia.Extensions;
+﻿using Gaia.Extensions;
 using Gaia.Helpers;
+using Gaia.Models;
 
 namespace Gaia.Services;
 

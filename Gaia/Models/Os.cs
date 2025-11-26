@@ -1,4 +1,4 @@
-﻿namespace Gaia.Enums;
+﻿namespace Gaia.Models;
 
 public enum Os
 {
