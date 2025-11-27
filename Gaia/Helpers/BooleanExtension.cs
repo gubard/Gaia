@@ -1,4 +1,4 @@
-namespace Gaia.Extensions;
+namespace Gaia.Helpers;
 
 public static class BooleanExtension
 {

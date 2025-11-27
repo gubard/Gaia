@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Gaia.Extensions;
+namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {

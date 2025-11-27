@@ -1,9 +1,16 @@
-﻿namespace Gaia.Helpers;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Gaia.Helpers;
 
 public static class StringExtension
 {
     public static bool IsEmail(this string str)
     {
         return StringHelper.EmailRegex.IsMatch(str);
+    }
+
+    public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str)
+    {
+        return string.IsNullOrWhiteSpace(str);
     }
 }
