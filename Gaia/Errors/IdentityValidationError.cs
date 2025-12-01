@@ -16,3 +16,17 @@ public sealed class DuplicationValidationError : IdentityValidationError
     {
     }
 }
+
+public sealed class NotFoundValidationError : IdentityValidationError
+{
+    public NotFoundValidationError(string identity) : base(identity)
+    {
+    }
+}
+
+public sealed class AlreadyExistsValidationError : IdentityValidationError
+{
+    public AlreadyExistsValidationError(string identity) : base(identity)
+    {
+    }
+}
