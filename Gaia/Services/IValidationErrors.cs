@@ -1,8 +1,8 @@
-﻿using Gaia.Errors;
+﻿using Gaia.Models;
 
 namespace Gaia.Services;
 
 public interface IValidationErrors
 {
-    ValidationError[] ValidationErrors { get; }
+    List<ValidationError> ValidationErrors { get; }
 }

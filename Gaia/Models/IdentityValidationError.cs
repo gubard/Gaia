@@ -1,4 +1,4 @@
-﻿namespace Gaia.Errors;
+﻿namespace Gaia.Models;
 
 public abstract class IdentityValidationError : ValidationError
 {

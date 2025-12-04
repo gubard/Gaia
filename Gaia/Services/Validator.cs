@@ -1,4 +1,4 @@
-﻿using Gaia.Errors;
+﻿using Gaia.Models;
 
 namespace Gaia.Services;
 
