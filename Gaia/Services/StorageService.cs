@@ -6,11 +6,13 @@ namespace Gaia.Services;
 public interface IStorageService
 {
     DirectoryInfo GetAppDirectory();
+    DirectoryInfo GetDbDirectory();
 }
 
 public class StorageService : IStorageService
 {
     private readonly DirectoryInfo _appDirectory;
+    private readonly DirectoryInfo _dbDirectory;
 
     public StorageService()
     {
@@ -22,7 +24,7 @@ public class StorageService : IStorageService
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath);
+                    _appDirectory = new(appDirectoryPath);
 
                     break;
                 }
@@ -31,7 +33,7 @@ public class StorageService : IStorageService
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath);
+                    _appDirectory = new(appDirectoryPath);
 
                     break;
                 }
@@ -40,19 +42,19 @@ public class StorageService : IStorageService
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath);
+                    _appDirectory = new(appDirectoryPath);
 
                     break;
                 }
 
-                _appDirectory = new DirectoryInfo("./storage");
+                _appDirectory = new("./storage");
 
                 break;
             }
             case Os.Android:
             {
                 var appDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                _appDirectory = new DirectoryInfo(appDirectoryPath);
+                _appDirectory = new(appDirectoryPath);
 
                 break;
             }
@@ -68,10 +70,17 @@ public class StorageService : IStorageService
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        _dbDirectory = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Databases"));
     }
 
     public DirectoryInfo GetAppDirectory()
     {
         return _appDirectory;
+    }
+
+    public DirectoryInfo GetDbDirectory()
+    {
+        return _dbDirectory;
     }
 }
