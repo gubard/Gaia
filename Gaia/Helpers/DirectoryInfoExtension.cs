@@ -2,8 +2,16 @@
 
 public static class DirectoryInfoExtension
 {
-    public static FileInfo ToFile(this DirectoryInfo directoryInfo, string fileName)
+    extension(DirectoryInfo directoryInfo)
     {
-        return new(Path.Combine(directoryInfo.FullName, fileName));
+        public FileInfo ToFile(string fileName)
+        {
+            return new(Path.Combine(directoryInfo.FullName, fileName));
+        }
+
+        public DirectoryInfo Combine(string segment)
+        {
+            return new(Path.Combine(directoryInfo.FullName, segment));
+        }
     }
 }
