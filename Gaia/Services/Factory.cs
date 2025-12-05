@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using Gaia.Models;
 
 namespace Gaia.Services;
 
@@ -10,6 +11,16 @@ public interface IFactory<in TInput, out TOutput>
 public interface IFactory<out TOutput>
 {
     TOutput Create();
+}
+
+public class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
+{
+    public static readonly EmptyHeadersFactory Instance = new();
+
+    public Memory<HttpHeader> Create()
+    {
+        return Memory<HttpHeader>.Empty;
+    }
 }
 
 public class HashServiceFactory : IFactory<string, IHashService<string, string>>

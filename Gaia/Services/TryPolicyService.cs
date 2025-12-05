@@ -4,7 +4,7 @@ namespace Gaia.Services;
 
 public interface ITryPolicyService
 {
-    event Action<Exception[]> OnError;
+    event Action<Exception> OnError;
     event Action OnSuccess;
     T Try<T>(Func<T> func) where T : IValidationErrors, new();
     ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func) where T : IValidationErrors, new();
@@ -21,7 +21,7 @@ public class TryPolicyService : ITryPolicyService
         _delay = delay;
     }
 
-    public event Action<Exception[]>? OnError;
+    public event Action<Exception>? OnError;
     public event Action? OnSuccess;
 
 
@@ -42,6 +42,7 @@ public class TryPolicyService : ITryPolicyService
             catch (Exception exception)
             {
                 exceptions.Add(exception);
+                OnError?.Invoke(exception);
                 Thread.Sleep(_delay);
             }
         }
@@ -49,7 +50,6 @@ public class TryPolicyService : ITryPolicyService
         var result = new T();
         var exceptionsArray = exceptions.ToArray();
         result.ValidationErrors.Add(new ExceptionsValidationError(exceptionsArray));
-        OnError?.Invoke(exceptionsArray);
 
         return result;
     }
@@ -71,6 +71,7 @@ public class TryPolicyService : ITryPolicyService
             catch (Exception exception)
             {
                 exceptions.Add(exception);
+                OnError?.Invoke(exception);
                 await Task.Delay(_delay);
             }
         }
@@ -78,7 +79,6 @@ public class TryPolicyService : ITryPolicyService
         var result = new T();
         var exceptionsArray = exceptions.ToArray();
         result.ValidationErrors.Add(new ExceptionsValidationError(exceptionsArray));
-        OnError?.Invoke(exceptionsArray);
 
         return result;
     }
