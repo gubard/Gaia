@@ -11,14 +11,16 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
     ValueTask<TPostResponse> PostAsync(TPostRequest request, CancellationToken ct);
 }
 
-public abstract class Service<TGetRequest, TPostRequest, TGetResponse, TPostResponse> : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new()
+public interface IHttpService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse> : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new();
+
+public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> : IHttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new()
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly ITryPolicyService _tryPolicyService;
     private readonly IFactory<Memory<HttpHeader>> _headersFactory;
 
-    protected Service(HttpClient httpClient, JsonSerializerOptions jsonSerializerOptions, ITryPolicyService tryPolicyService, IFactory<Memory<HttpHeader>> headersFactory)
+    protected HttpService(HttpClient httpClient, JsonSerializerOptions jsonSerializerOptions, ITryPolicyService tryPolicyService, IFactory<Memory<HttpHeader>> headersFactory)
     {
         _httpClient = httpClient;
         _jsonSerializerOptions = jsonSerializerOptions;
