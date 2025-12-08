@@ -11,9 +11,7 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
     ValueTask<TPostResponse> PostAsync(TPostRequest request, CancellationToken ct);
 }
 
-public interface IHttpService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse> : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new();
-
-public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> : IHttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new()
+public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse> where TGetResponse : IValidationErrors, new() where TPostResponse : IValidationErrors, new()
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
