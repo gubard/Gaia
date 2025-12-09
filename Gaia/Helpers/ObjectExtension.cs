@@ -4,7 +4,13 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
-    public static T ThrowIfNull<T>(this T? obj, [CallerArgumentExpression(nameof(obj))] string paramName = "")
+    public static ReadOnlyMemory<T> ToReadOnlyMemory<T>(this T[] array)
+    {
+        return array;
+    }
+
+    public static T ThrowIfNull<T>(this T? obj,
+        [CallerArgumentExpression(nameof(obj))] string paramName = "")
     {
         if (obj is null)
         {
@@ -26,6 +32,6 @@ public static class ObjectExtension
 
     public static IEnumerable<T> ToEnumerable<T>(this T obj) where T : class
     {
-        return [obj,];
+        return [obj];
     }
 }
