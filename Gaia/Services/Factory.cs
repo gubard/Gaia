@@ -3,6 +3,11 @@ using Gaia.Models;
 
 namespace Gaia.Services;
 
+public interface IStaticFactory<in TInput, out TOutput>
+{
+    static abstract TOutput Create(TInput input);
+}
+
 public interface IFactory<in TInput, out TOutput>
 {
     TOutput Create(TInput input);
