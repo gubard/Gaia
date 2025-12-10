@@ -15,6 +15,7 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse,
         CancellationToken ct);
 
     TPostResponse Post(TPostRequest request);
+    TGetResponse Get(TGetRequest request);
 }
 
 public abstract class
@@ -83,6 +84,22 @@ public abstract class
                     _jsonSerializerOptions);
             var response =
                 httpResponse.Content.ReadFromJson<TPostResponse>(
+                    _jsonSerializerOptions);
+
+            return response.ThrowIfNull();
+        });
+    }
+
+    public TGetResponse Get(TGetRequest request)
+    {
+        return _tryPolicyService.Try(() =>
+        {
+            var headers = _headersFactory.Create();
+            using var httpResponse = _httpClient.AddHeaders(headers.Span)
+               .PostAsJson(RouteHelper.Get, request,
+                    _jsonSerializerOptions);
+            var response =
+                httpResponse.Content.ReadFromJson<TGetResponse>(
                     _jsonSerializerOptions);
 
             return response.ThrowIfNull();
