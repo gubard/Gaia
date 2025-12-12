@@ -1,3 +1,5 @@
+using Gaia.Services;
+
 namespace Gaia.Models;
 
 public abstract class PropertyValidationError : ValidationError
@@ -10,9 +12,27 @@ public abstract class PropertyValidationError : ValidationError
     public string PropertyName { get; }
 }
 
+public sealed class PropertyZeroValidationError(string propertyName) : PropertyValidationError(propertyName);
+public sealed class PropertyEmptyValidationError(string propertyName) : PropertyValidationError(propertyName);
+public sealed class PropertyInvalidValidationError(string propertyName) : PropertyValidationError(propertyName);
+
+public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidationError
+{
+    public PropertyTheDateHasExpiredValidationError(string propertyName, DateOnly actualDate, DateOnly expireDate) :
+        base(propertyName)
+    {
+        ActualDate = actualDate;
+        ExpireDate = expireDate;
+    }
+
+    public DateOnly ActualDate { get; }
+    public DateOnly ExpireDate { get; }
+}
+
 public sealed class PropertyContainsInvalidValueValidationError<T> : PropertyValidationError
 {
-    public PropertyContainsInvalidValueValidationError(string propertyName, T invalidValue, T[] validValues) : base(propertyName)
+    public PropertyContainsInvalidValueValidationError(string propertyName, T invalidValue, T[] validValues) :
+        base(propertyName)
     {
         InvalidValue = invalidValue;
         ValidValues = validValues;
@@ -22,7 +42,7 @@ public sealed class PropertyContainsInvalidValueValidationError<T> : PropertyVal
     public T[] ValidValues { get; }
 }
 
-public sealed class PropertyMaxSizeValidationError : PropertyValidationError
+public sealed class PropertyMaxSizeValidationError : PropertyValidationError, IObjectPropertyStringValueGetter
 {
     public PropertyMaxSizeValidationError(string propertyName, ulong actualSize, ulong maxSize) : base(propertyName)
     {
@@ -32,6 +52,17 @@ public sealed class PropertyMaxSizeValidationError : PropertyValidationError
 
     public ulong MaxSize { get; }
     public ulong ActualSize { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(MaxSize) => MaxSize.ToString(),
+            nameof(ActualSize) => ActualSize.ToString(),
+            nameof(PropertyName) => PropertyName,
+            _ => null,
+        };
+    }
 }
 
 public sealed class PropertyMinSizeValidationError : PropertyValidationError
@@ -55,7 +86,3 @@ public sealed class PropertyNotEqualValidationError : PropertyValidationError
 
     public string SecondPropertyName { get; }
 }
-
-public sealed class PropertyZeroValidationError(string propertyName) : PropertyValidationError(propertyName);
-public sealed class PropertyEmptyValidationError(string propertyName) : PropertyValidationError(propertyName);
-public sealed class PropertyInvalidValidationError(string propertyName) : PropertyValidationError(propertyName);

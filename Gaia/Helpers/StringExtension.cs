@@ -13,6 +13,11 @@ public static class StringExtension
     {
         return StringHelper.EmailRegex.IsMatch(str);
     }
+    
+    public static bool IsLink(this string str)
+    {
+        return str.StartsWith("http://") || str.StartsWith("https://");
+    }
 
     public static bool IsNullOrWhiteSpace([NotNullWhen(false)] this string? str)
     {

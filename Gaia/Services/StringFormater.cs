@@ -9,12 +9,7 @@ public interface IStringFormater
 
 public class StringFormater : IStringFormater
 {
-    private readonly IObjectPropertyStringValueGetter _objectPropertyStringValueGetter;
-
-    public StringFormater(IObjectPropertyStringValueGetter objectPropertyStringValueGetter)
-    {
-        _objectPropertyStringValueGetter = objectPropertyStringValueGetter;
-    }
+    public static readonly StringFormater Instance = new();
 
     public string Format(string format, params object[] parameters)
     {
@@ -69,11 +64,16 @@ public class StringFormater : IStringFormater
 
     private string? GetStringValue(object parameter, ReadOnlySpan<char> stringPropertyNames)
     {
+        if (parameter is not IObjectPropertyStringValueGetter getter)
+        {
+            return null;
+        }
+
         var propertyNames = stringPropertyNames.Split(',');
 
         foreach (var propertyName in propertyNames)
         {
-            var value = _objectPropertyStringValueGetter.FindStringValue(parameter, stringPropertyNames[propertyName]);
+            var value = getter.FindStringValue(stringPropertyNames[propertyName].ToString());
 
             if (value is not null)
             {
