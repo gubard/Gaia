@@ -4,8 +4,7 @@ namespace Gaia.Helpers;
 
 public static class StringBuilderExtension
 {
-    public static void Duplicate(this StringBuilder builder, string str,
-        ulong count)
+    public static void Duplicate(this StringBuilder builder, string str, ulong count)
     {
         if (count == 0)
         {

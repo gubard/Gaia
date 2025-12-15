@@ -13,7 +13,7 @@ public static class StringExtension
     {
         return StringHelper.EmailRegex.IsMatch(str);
     }
-    
+
     public static bool IsLink(this string str)
     {
         return str.StartsWith("http://") || str.StartsWith("https://");

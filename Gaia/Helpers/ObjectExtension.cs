@@ -9,8 +9,10 @@ public static class ObjectExtension
         return array;
     }
 
-    public static T ThrowIfNull<T>(this T? obj,
-        [CallerArgumentExpression(nameof(obj))] string paramName = "")
+    public static T ThrowIfNull<T>(
+        this T? obj,
+        [CallerArgumentExpression(nameof(obj))] string paramName = ""
+    )
     {
         if (obj is null)
         {
@@ -20,17 +22,20 @@ public static class ObjectExtension
         return obj;
     }
 
-    public static T? As<T>(this object? obj) where T : class
+    public static T? As<T>(this object? obj)
+        where T : class
     {
         return obj as T;
     }
 
-    public static T Cast<T>(this object obj) where T : class
+    public static T Cast<T>(this object obj)
+        where T : class
     {
         return (T)obj;
     }
 
-    public static IEnumerable<T> ToEnumerable<T>(this T obj) where T : class
+    public static IEnumerable<T> ToEnumerable<T>(this T obj)
+        where T : class
     {
         return [obj];
     }

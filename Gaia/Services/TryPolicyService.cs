@@ -6,8 +6,10 @@ public interface ITryPolicyService
 {
     event Action<Exception> OnError;
     event Action OnSuccess;
-    T Try<T>(Func<T> func) where T : IValidationErrors, new();
-    ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func) where T : IValidationErrors, new();
+    T Try<T>(Func<T> func)
+        where T : IValidationErrors, new();
+    ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func)
+        where T : IValidationErrors, new();
 }
 
 public class TryPolicyService : ITryPolicyService
@@ -24,8 +26,8 @@ public class TryPolicyService : ITryPolicyService
     public event Action<Exception>? OnError;
     public event Action? OnSuccess;
 
-
-    public T Try<T>(Func<T> func) where T : IValidationErrors, new()
+    public T Try<T>(Func<T> func)
+        where T : IValidationErrors, new()
     {
         var count = 0;
         var exceptions = new List<Exception>();
@@ -54,7 +56,8 @@ public class TryPolicyService : ITryPolicyService
         return result;
     }
 
-    public async ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func) where T : IValidationErrors, new()
+    public async ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func)
+        where T : IValidationErrors, new()
     {
         var count = 0;
         var exceptions = new List<Exception>();

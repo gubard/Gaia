@@ -20,7 +20,9 @@ public class StorageService : IStorageService
         {
             case Os.Windows:
             {
-                var appDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var appDirectoryPath = Environment.GetFolderPath(
+                    Environment.SpecialFolder.ApplicationData
+                );
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
@@ -29,7 +31,9 @@ public class StorageService : IStorageService
                     break;
                 }
 
-                appDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                appDirectoryPath = Environment.GetFolderPath(
+                    Environment.SpecialFolder.LocalApplicationData
+                );
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
@@ -38,7 +42,9 @@ public class StorageService : IStorageService
                     break;
                 }
 
-                appDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+                appDirectoryPath = Environment.GetFolderPath(
+                    Environment.SpecialFolder.CommonApplicationData
+                );
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
@@ -53,7 +59,9 @@ public class StorageService : IStorageService
             }
             case Os.Android:
             {
-                var appDirectoryPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var appDirectoryPath = Environment.GetFolderPath(
+                    Environment.SpecialFolder.Personal
+                );
                 _appDirectory = new(appDirectoryPath);
 
                 break;
@@ -71,7 +79,9 @@ public class StorageService : IStorageService
                 throw new ArgumentOutOfRangeException();
         }
 
-        _dbDirectory = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Databases"));
+        _dbDirectory = new(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Databases")
+        );
     }
 
     public DirectoryInfo GetAppDirectory()

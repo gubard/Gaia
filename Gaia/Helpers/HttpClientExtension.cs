@@ -15,8 +15,7 @@ public static class HttpClientExtension
 
             foreach (var header in headers)
             {
-                httpClient.DefaultRequestHeaders.Add(header.Name,
-                    header.Values.ToArray());
+                httpClient.DefaultRequestHeaders.Add(header.Name, header.Values.ToArray());
             }
 
             return httpClient;
@@ -24,7 +23,9 @@ public static class HttpClientExtension
 
         public HttpResponseMessage PostAsJson<TValue>(
             [StringSyntax(StringSyntaxAttribute.Uri)] string requestUri,
-            TValue value, JsonSerializerOptions options)
+            TValue value,
+            JsonSerializerOptions options
+        )
         {
             var content = JsonContent.Create(value, null, options);
 
@@ -33,15 +34,15 @@ public static class HttpClientExtension
 
         public HttpResponseMessage Post(
             [StringSyntax(StringSyntaxAttribute.Uri)] string requestUri,
-            HttpContent content)
+            HttpContent content
+        )
         {
             return httpClient.Post(CreateUri(requestUri), content);
         }
 
         public HttpResponseMessage Post(Uri requestUri, HttpContent content)
         {
-            var request =
-                httpClient.CreateRequestMessage(HttpMethod.Post, requestUri);
+            var request = httpClient.CreateRequestMessage(HttpMethod.Post, requestUri);
             request.Content = content;
 
             return httpClient.Send(request);
@@ -54,7 +55,10 @@ public static class HttpClientExtension
     }
 
     private static HttpRequestMessage CreateRequestMessage(
-        this HttpClient httpClient, HttpMethod method, Uri uri)
+        this HttpClient httpClient,
+        HttpMethod method,
+        Uri uri
+    )
     {
         return new(method, uri)
         {

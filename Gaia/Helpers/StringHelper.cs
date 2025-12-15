@@ -4,8 +4,10 @@ namespace Gaia.Helpers;
 
 public static partial class StringHelper
 {
-    [GeneratedRegex(@"^(?:[a-zA-Z0-9_'^&/+-])+(?:\.(?:[a-zA-Z0-9_'^&/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
-        RegexOptions.Compiled)]
+    [GeneratedRegex(
+        @"^(?:[a-zA-Z0-9_'^&/+-])+(?:\.(?:[a-zA-Z0-9_'^&/+-])+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$",
+        RegexOptions.Compiled
+    )]
     private static partial Regex CreateEmailRegex();
 
     public const string UpperLatin = "QAZWSXEDCRFVTGBYHNUJMIKOP";

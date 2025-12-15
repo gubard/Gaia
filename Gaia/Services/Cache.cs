@@ -9,9 +9,7 @@ public class EmptyCache<TSource> : ICache<TSource>
 {
     public static readonly EmptyCache<TSource> Instance = new();
 
-    public void Update(TSource source)
-    {
-    }
+    public void Update(TSource source) { }
 }
 
 public abstract class Cache<TSource, TItem> : ICache<TSource>

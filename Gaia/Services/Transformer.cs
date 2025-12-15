@@ -24,12 +24,11 @@ public abstract class StringToEncoding : ITransformer<string, byte[]>
 
 public sealed class StringToUtf8 : StringToEncoding
 {
-    public StringToUtf8() : base(Encoding.UTF8)
-    {
-    }
+    public StringToUtf8()
+        : base(Encoding.UTF8) { }
 }
 
-public class BytesToHex : ITransformer<byte[],string >
+public class BytesToHex : ITransformer<byte[], string>
 {
     public string Transform(byte[] input)
     {

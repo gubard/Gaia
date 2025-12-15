@@ -12,21 +12,18 @@ public abstract class IdentityValidationError : ValidationError
 
 public sealed class DuplicationValidationError : IdentityValidationError
 {
-    public DuplicationValidationError(string identity) : base(identity)
-    {
-    }
+    public DuplicationValidationError(string identity)
+        : base(identity) { }
 }
 
 public sealed class NotFoundValidationError : IdentityValidationError
 {
-    public NotFoundValidationError(string identity) : base(identity)
-    {
-    }
+    public NotFoundValidationError(string identity)
+        : base(identity) { }
 }
 
 public sealed class AlreadyExistsValidationError : IdentityValidationError
 {
-    public AlreadyExistsValidationError(string identity) : base(identity)
-    {
-    }
+    public AlreadyExistsValidationError(string identity)
+        : base(identity) { }
 }

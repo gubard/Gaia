@@ -14,8 +14,16 @@ public readonly struct DayOfYear : IComparable<DayOfYear>
     public int CompareTo(DayOfYear other)
     {
         var year = DateTime.Now.Year;
-        var x = new DateOnly(year, (int)Month, Math.Min(DateTime.DaysInMonth(year, (int)Month), Day));
-        var y = new DateOnly(year, (int)other.Month, Math.Min(DateTime.DaysInMonth(year, (int)other.Month), other.Day));
+        var x = new DateOnly(
+            year,
+            (int)Month,
+            Math.Min(DateTime.DaysInMonth(year, (int)Month), Day)
+        );
+        var y = new DateOnly(
+            year,
+            (int)other.Month,
+            Math.Min(DateTime.DaysInMonth(year, (int)other.Month), other.Day)
+        );
 
         return x.CompareTo(y);
     }

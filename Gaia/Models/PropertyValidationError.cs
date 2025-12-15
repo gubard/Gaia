@@ -12,14 +12,23 @@ public abstract class PropertyValidationError : ValidationError
     public string PropertyName { get; }
 }
 
-public sealed class PropertyZeroValidationError(string propertyName) : PropertyValidationError(propertyName);
-public sealed class PropertyEmptyValidationError(string propertyName) : PropertyValidationError(propertyName);
-public sealed class PropertyInvalidValidationError(string propertyName) : PropertyValidationError(propertyName);
+public sealed class PropertyZeroValidationError(string propertyName)
+    : PropertyValidationError(propertyName);
+
+public sealed class PropertyEmptyValidationError(string propertyName)
+    : PropertyValidationError(propertyName);
+
+public sealed class PropertyInvalidValidationError(string propertyName)
+    : PropertyValidationError(propertyName);
 
 public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidationError
 {
-    public PropertyTheDateHasExpiredValidationError(string propertyName, DateOnly actualDate, DateOnly expireDate) :
-        base(propertyName)
+    public PropertyTheDateHasExpiredValidationError(
+        string propertyName,
+        DateOnly actualDate,
+        DateOnly expireDate
+    )
+        : base(propertyName)
     {
         ActualDate = actualDate;
         ExpireDate = expireDate;
@@ -31,8 +40,12 @@ public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidatio
 
 public sealed class PropertyContainsInvalidValueValidationError<T> : PropertyValidationError
 {
-    public PropertyContainsInvalidValueValidationError(string propertyName, T invalidValue, T[] validValues) :
-        base(propertyName)
+    public PropertyContainsInvalidValueValidationError(
+        string propertyName,
+        T invalidValue,
+        T[] validValues
+    )
+        : base(propertyName)
     {
         InvalidValue = invalidValue;
         ValidValues = validValues;
@@ -42,9 +55,12 @@ public sealed class PropertyContainsInvalidValueValidationError<T> : PropertyVal
     public T[] ValidValues { get; }
 }
 
-public sealed class PropertyMaxSizeValidationError : PropertyValidationError, IObjectPropertyStringValueGetter
+public sealed class PropertyMaxSizeValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
 {
-    public PropertyMaxSizeValidationError(string propertyName, ulong actualSize, ulong maxSize) : base(propertyName)
+    public PropertyMaxSizeValidationError(string propertyName, ulong actualSize, ulong maxSize)
+        : base(propertyName)
     {
         ActualSize = actualSize;
         MaxSize = maxSize;
@@ -67,7 +83,8 @@ public sealed class PropertyMaxSizeValidationError : PropertyValidationError, IO
 
 public sealed class PropertyMinSizeValidationError : PropertyValidationError
 {
-    public PropertyMinSizeValidationError(string propertyName, ulong actualSize, ulong minSize) : base(propertyName)
+    public PropertyMinSizeValidationError(string propertyName, ulong actualSize, ulong minSize)
+        : base(propertyName)
     {
         ActualSize = actualSize;
         MinSize = minSize;
@@ -79,7 +96,8 @@ public sealed class PropertyMinSizeValidationError : PropertyValidationError
 
 public sealed class PropertyNotEqualValidationError : PropertyValidationError
 {
-    public PropertyNotEqualValidationError(string propertyName, string secondPropertyName) : base(propertyName)
+    public PropertyNotEqualValidationError(string propertyName, string secondPropertyName)
+        : base(propertyName)
     {
         SecondPropertyName = secondPropertyName;
     }

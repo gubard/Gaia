@@ -37,7 +37,7 @@ public static class ClaimExtension
         {
             return claims.GetClaim(ClaimTypes.Role);
         }
-        
+
         public Claim GetEmailClaim()
         {
             return claims.GetClaim(ClaimTypes.Email);

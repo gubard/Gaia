@@ -33,8 +33,11 @@ public class StringHashService : IHashService<string, string>
     private readonly ITransformer<string, byte[]> _stingToBytesTransformer;
     private readonly ITransformer<byte[], string> _bytesToStringTransformer;
 
-    public StringHashService(IHashService<byte[], byte[]> hashService,
-        ITransformer<string, byte[]> stingToBytesTransformer, ITransformer<byte[], string> bytesToStringTransformer)
+    public StringHashService(
+        IHashService<byte[], byte[]> hashService,
+        ITransformer<string, byte[]> stingToBytesTransformer,
+        ITransformer<byte[], string> bytesToStringTransformer
+    )
     {
         _hashService = hashService;
         _stingToBytesTransformer = stingToBytesTransformer;
