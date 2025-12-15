@@ -1,18 +1,17 @@
 namespace Gaia.Models;
 
-public readonly struct DayOfYear : IComparable<DayOfYear>
+public class DayOfYear : IComparable<DayOfYear>
 {
-    public DayOfYear(byte day, Month month)
-    {
-        Day = day;
-        Month = month;
-    }
+    public byte Day { get; set; }
+    public Month Month { get; set; }
 
-    public byte Day { get; }
-    public Month Month { get; }
-
-    public int CompareTo(DayOfYear other)
+    public int CompareTo(DayOfYear? other)
     {
+        if (other == null)
+        {
+            return 1;
+        }
+
         var year = DateTime.Now.Year;
         var x = new DateOnly(
             year,
