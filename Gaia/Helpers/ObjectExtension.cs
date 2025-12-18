@@ -9,6 +9,20 @@ public static class ObjectExtension
         return array;
     }
 
+    public static T ThrowIfNullStruct<T>(
+        this T? obj,
+        [CallerArgumentExpression(nameof(obj))] string paramName = ""
+    )
+        where T : struct
+    {
+        if (obj is null)
+        {
+            throw new ArgumentNullException(paramName);
+        }
+
+        return obj.Value;
+    }
+
     public static T ThrowIfNull<T>(
         this T? obj,
         [CallerArgumentExpression(nameof(obj))] string paramName = ""
