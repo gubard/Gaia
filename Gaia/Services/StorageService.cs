@@ -14,41 +14,35 @@ public class StorageService : IStorageService
     private readonly DirectoryInfo _appDirectory;
     private readonly DirectoryInfo _dbDirectory;
 
-    public StorageService()
+    public StorageService(string appName)
     {
         switch (OsHelper.OsType)
         {
             case Os.Windows:
             {
-                var appDirectoryPath = Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData
-                );
+                var appDirectoryPath = Environment.SpecialFolder.ApplicationData.GetPath();
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new(appDirectoryPath);
+                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
 
                     break;
                 }
 
-                appDirectoryPath = Environment.GetFolderPath(
-                    Environment.SpecialFolder.LocalApplicationData
-                );
+                appDirectoryPath = Environment.SpecialFolder.LocalApplicationData.GetPath();
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new(appDirectoryPath);
+                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
 
                     break;
                 }
 
-                appDirectoryPath = Environment.GetFolderPath(
-                    Environment.SpecialFolder.CommonApplicationData
-                );
+                appDirectoryPath = Environment.SpecialFolder.CommonApplicationData.GetPath();
 
                 if (!appDirectoryPath.IsNullOrWhiteSpace())
                 {
-                    _appDirectory = new(appDirectoryPath);
+                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
 
                     break;
                 }
@@ -59,9 +53,7 @@ public class StorageService : IStorageService
             }
             case Os.Android:
             {
-                var appDirectoryPath = Environment.GetFolderPath(
-                    Environment.SpecialFolder.Personal
-                );
+                var appDirectoryPath = Environment.SpecialFolder.Personal.GetPath();
                 _appDirectory = new(appDirectoryPath);
 
                 break;
@@ -79,9 +71,20 @@ public class StorageService : IStorageService
                 throw new ArgumentOutOfRangeException();
         }
 
-        _dbDirectory = new(
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Databases")
-        );
+        _dbDirectory = Environment
+            .SpecialFolder.Personal.GetDir()
+            .Combine("Databases")
+            .Combine(appName);
+
+        if (!_appDirectory.Exists)
+        {
+            _appDirectory.Create();
+        }
+
+        if (!_dbDirectory.Exists)
+        {
+            _dbDirectory.Create();
+        }
     }
 
     public DirectoryInfo GetAppDirectory()
