@@ -18,6 +18,9 @@ public class StorageService : IStorageService
     {
         switch (OsHelper.OsType)
         {
+            case Os.MacOs:
+            case Os.FreeBsd:
+            case Os.Linux:
             case Os.Windows:
             {
                 var appDirectoryPath = Environment.SpecialFolder.ApplicationData.GetPath();
@@ -58,10 +61,7 @@ public class StorageService : IStorageService
 
                 break;
             }
-            case Os.MacOs:
-            case Os.Linux:
             case Os.Browser:
-            case Os.FreeBsd:
             case Os.Ios:
             case Os.MacCatalyst:
             case Os.TvOs:
