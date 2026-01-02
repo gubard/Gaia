@@ -68,7 +68,11 @@ public class StorageService : IStorageService
             case Os.WatchOs:
             case Os.Wasi:
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(
+                    nameof(OsHelper.OsType),
+                    OsHelper.OsType,
+                    null
+                );
         }
 
         _dbDirectory = Environment
