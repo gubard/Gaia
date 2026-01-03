@@ -14,6 +14,16 @@ public static class FileInfoExtension
             return File.ReadAllText(fileInfo.FullName);
         }
 
+        public Task<string[]> ReadAllLinesAsync(CancellationToken ct)
+        {
+            return File.ReadAllLinesAsync(fileInfo.FullName, ct);
+        }
+
+        public string[] ReadAllLines()
+        {
+            return File.ReadAllLines(fileInfo.FullName);
+        }
+
         public Task<string> ReadAllTextAsync(CancellationToken ct)
         {
             return File.ReadAllTextAsync(fileInfo.FullName, ct);
