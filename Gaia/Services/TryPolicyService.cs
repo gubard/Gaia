@@ -1,4 +1,5 @@
-﻿using Gaia.Models;
+﻿using System.Runtime.CompilerServices;
+using Gaia.Models;
 
 namespace Gaia.Services;
 
@@ -6,9 +7,11 @@ public interface ITryPolicyService
 {
     event Action<Exception> OnError;
     event Action OnSuccess;
+
     T Try<T>(Func<T> func)
         where T : IValidationErrors, new();
-    ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func)
+
+    ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ValueTask<T>> func)
         where T : IValidationErrors, new();
 }
 
@@ -56,7 +59,13 @@ public class TryPolicyService : ITryPolicyService
         return result;
     }
 
-    public async ValueTask<T> TryAsync<T>(Func<ValueTask<T>> func)
+    public ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ValueTask<T>> func)
+        where T : IValidationErrors, new()
+    {
+        return TryCore(func).ConfigureAwait(false);
+    }
+
+    private async ValueTask<T> TryCore<T>(Func<ValueTask<T>> func)
         where T : IValidationErrors, new()
     {
         var count = 0;

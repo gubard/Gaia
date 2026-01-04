@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Gaia.Helpers;
 
@@ -51,7 +52,15 @@ public static class FileInfoExtension
             return file.Exists ? file.OpenWrite() : file.Create();
         }
 
-        public async ValueTask<T?> DeserializeJsonAsync<T>(
+        public ConfiguredValueTaskAwaitable<T?> DeserializeJsonAsync<T>(
+            JsonSerializerOptions options,
+            CancellationToken ct
+        )
+        {
+            return file.DeserializeJsonCore<T>(options, ct).ConfigureAwait(false);
+        }
+
+        private async ValueTask<T?> DeserializeJsonCore<T>(
             JsonSerializerOptions options,
             CancellationToken ct
         )
@@ -66,7 +75,16 @@ public static class FileInfoExtension
             return await JsonSerializer.DeserializeAsync<T>(stream, options, ct);
         }
 
-        public async ValueTask SerializeJsonAsync<T>(
+        public ConfiguredValueTaskAwaitable SerializeJsonAsync<T>(
+            T value,
+            JsonSerializerOptions options,
+            CancellationToken ct
+        )
+        {
+            return file.SerializeJsonCore(value, options, ct).ConfigureAwait(false);
+        }
+
+        private async ValueTask SerializeJsonCore<T>(
             T value,
             JsonSerializerOptions options,
             CancellationToken ct

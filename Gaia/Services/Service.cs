@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Gaia.Helpers;
 using Gaia.Models;
@@ -9,9 +10,12 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
     where TGetResponse : IValidationErrors, new()
     where TPostResponse : IValidationErrors, new()
 {
-    ValueTask<TGetResponse> GetAsync(TGetRequest request, CancellationToken ct);
+    ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(TGetRequest request, CancellationToken ct);
 
-    ValueTask<TPostResponse> PostAsync(TPostRequest request, CancellationToken ct);
+    ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+        TPostRequest request,
+        CancellationToken ct
+    );
 
     TPostResponse Post(TPostRequest request);
     TGetResponse Get(TGetRequest request);
@@ -40,7 +44,10 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         _headersFactory = headersFactory;
     }
 
-    public ValueTask<TGetResponse> GetAsync(TGetRequest request, CancellationToken ct)
+    public ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(
+        TGetRequest request,
+        CancellationToken ct
+    )
     {
         return _tryPolicyService.TryAsync(async () =>
         {
@@ -57,7 +64,10 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         });
     }
 
-    public ValueTask<TPostResponse> PostAsync(TPostRequest request, CancellationToken ct)
+    public ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+        TPostRequest request,
+        CancellationToken ct
+    )
     {
         return _tryPolicyService.TryAsync(async () =>
         {
