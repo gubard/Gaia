@@ -47,9 +47,14 @@ public static class FileInfoExtension
             return Path.GetFileNameWithoutExtension(file.FullName);
         }
 
-        public Stream OpenWriteOrCreate()
+        public Stream DeleteAndCreate()
         {
-            return file.Exists ? file.OpenWrite() : file.Create();
+            if (file.Exists)
+            {
+                file.Delete();
+            }
+
+            return file.Create();
         }
 
         public ConfiguredValueTaskAwaitable<T?> DeserializeJsonAsync<T>(
@@ -90,7 +95,7 @@ public static class FileInfoExtension
             CancellationToken ct
         )
         {
-            await using var stream = file.OpenWriteOrCreate();
+            await using var stream = file.DeleteAndCreate();
             await JsonSerializer.SerializeAsync(stream, value, options, ct);
         }
 
@@ -108,7 +113,7 @@ public static class FileInfoExtension
 
         public void SerializeJson<T>(T value, JsonSerializerOptions options)
         {
-            using var stream = file.OpenWriteOrCreate();
+            using var stream = file.DeleteAndCreate();
             JsonSerializer.Serialize(stream, value, options);
         }
     }
