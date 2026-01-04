@@ -9,6 +9,11 @@ public static class StringExtension
         return string.Join(separator, enumerable);
     }
 
+    public static DirectoryInfo ToDir(this string path)
+    {
+        return new(path);
+    }
+
     public static bool IsEmail(this string str)
     {
         return StringHelper.EmailRegex.IsMatch(str);
