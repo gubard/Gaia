@@ -16,7 +16,11 @@ public class StorageService : IStorageService
 
     public StorageService(string appName)
     {
+#if DEBUG
+        _appDirectory = CreateAppDirectory(appName).Combine("Debug");
+#else
         _appDirectory = CreateAppDirectory(appName);
+#endif
         _dbDirectory = CreateDbDirectory(appName);
 
         if (!_appDirectory.Exists)
