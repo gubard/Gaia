@@ -103,7 +103,7 @@ public class StorageService : IStorageService
                     return new DirectoryInfo(appDirectoryPath).Combine(appName);
                 }
 
-                return new("./storage");
+                return AppDomain.CurrentDomain.BaseDirectory.ToDir().Combine("storage");
             }
             case Os.Android:
             {
