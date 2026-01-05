@@ -16,69 +16,8 @@ public class StorageService : IStorageService
 
     public StorageService(string appName)
     {
-        switch (OsHelper.OsType)
-        {
-            case Os.MacOs:
-            case Os.FreeBsd:
-            case Os.Linux:
-            case Os.Windows:
-            {
-                var appDirectoryPath = Environment.SpecialFolder.ApplicationData.GetPath();
-
-                if (!appDirectoryPath.IsNullOrWhiteSpace())
-                {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
-
-                    break;
-                }
-
-                appDirectoryPath = Environment.SpecialFolder.LocalApplicationData.GetPath();
-
-                if (!appDirectoryPath.IsNullOrWhiteSpace())
-                {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
-
-                    break;
-                }
-
-                appDirectoryPath = Environment.SpecialFolder.CommonApplicationData.GetPath();
-
-                if (!appDirectoryPath.IsNullOrWhiteSpace())
-                {
-                    _appDirectory = new DirectoryInfo(appDirectoryPath).Combine(appName);
-
-                    break;
-                }
-
-                _appDirectory = new("./storage");
-
-                break;
-            }
-            case Os.Android:
-            {
-                var appDirectoryPath = Environment.SpecialFolder.Personal.GetPath();
-                _appDirectory = new(appDirectoryPath);
-
-                break;
-            }
-            case Os.Browser:
-            case Os.Ios:
-            case Os.MacCatalyst:
-            case Os.TvOs:
-            case Os.WatchOs:
-            case Os.Wasi:
-            default:
-                throw new ArgumentOutOfRangeException(
-                    nameof(OsHelper.OsType),
-                    OsHelper.OsType,
-                    $"Specified {OsHelper.OsType} argument {nameof(OsHelper.OsType)} was out of the range of valid values."
-                );
-        }
-
-        _dbDirectory = Environment
-            .SpecialFolder.Personal.GetDir()
-            .Combine("Databases")
-            .Combine(appName);
+        _appDirectory = CreateAppDirectory(appName);
+        _dbDirectory = CreateDbDirectory(appName);
 
         if (!_appDirectory.Exists)
         {
@@ -99,5 +38,87 @@ public class StorageService : IStorageService
     public DirectoryInfo GetDbDirectory()
     {
         return _dbDirectory;
+    }
+
+    private DirectoryInfo CreateDbDirectory(string appName)
+    {
+        return OsHelper.OsType switch
+        {
+            Os.Windows
+            or Os.MacOs
+            or Os.Linux
+            or Os.Browser
+            or Os.FreeBsd
+            or Os.Ios
+            or Os.MacCatalyst
+            or Os.TvOs
+            or Os.WatchOs
+            or Os.Wasi => Environment
+                .SpecialFolder.UserProfile.GetDir()
+                .Combine("Databases")
+                .Combine(appName),
+            Os.Android => Environment
+                .SpecialFolder.Personal.GetDir()
+                .Combine("Databases")
+                .Combine(appName),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(OsHelper.OsType),
+                OsHelper.OsType,
+                $"Specified {OsHelper.OsType} argument {nameof(OsHelper.OsType)} was out of the range of valid values."
+            ),
+        };
+    }
+
+    private DirectoryInfo CreateAppDirectory(string appName)
+    {
+        switch (OsHelper.OsType)
+        {
+            case Os.MacOs:
+            case Os.FreeBsd:
+            case Os.Linux:
+            case Os.Windows:
+            {
+                var appDirectoryPath = Environment.SpecialFolder.ApplicationData.GetPath();
+
+                if (!appDirectoryPath.IsNullOrWhiteSpace())
+                {
+                    return new DirectoryInfo(appDirectoryPath).Combine(appName);
+                }
+
+                appDirectoryPath = Environment.SpecialFolder.LocalApplicationData.GetPath();
+
+                if (!appDirectoryPath.IsNullOrWhiteSpace())
+                {
+                    return new DirectoryInfo(appDirectoryPath).Combine(appName);
+                }
+
+                appDirectoryPath = Environment.SpecialFolder.CommonApplicationData.GetPath();
+
+                if (!appDirectoryPath.IsNullOrWhiteSpace())
+                {
+                    return new DirectoryInfo(appDirectoryPath).Combine(appName);
+                }
+
+                return new("./storage");
+            }
+            case Os.Android:
+            {
+                var appDirectoryPath = Environment.SpecialFolder.Personal.GetPath();
+
+                return new(appDirectoryPath);
+            }
+            case Os.Browser:
+            case Os.Ios:
+            case Os.MacCatalyst:
+            case Os.TvOs:
+            case Os.WatchOs:
+            case Os.Wasi:
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(OsHelper.OsType),
+                    OsHelper.OsType,
+                    $"Specified {OsHelper.OsType} argument {nameof(OsHelper.OsType)} was out of the range of valid values."
+                );
+        }
     }
 }
