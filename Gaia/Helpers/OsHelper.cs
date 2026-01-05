@@ -52,7 +52,5 @@ public static class OsHelper
         {
             OsType = Os.Wasi;
         }
-
-        Console.WriteLine(OsType);
     }
 }

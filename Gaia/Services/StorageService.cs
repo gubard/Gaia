@@ -71,7 +71,7 @@ public class StorageService : IStorageService
                 throw new ArgumentOutOfRangeException(
                     nameof(OsHelper.OsType),
                     OsHelper.OsType,
-                    null
+                    $"Specified {OsHelper.OsType} argument {nameof(OsHelper.OsType)} was out of the range of valid values."
                 );
         }
 
