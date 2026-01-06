@@ -9,7 +9,7 @@ public static class HttpClientExtension
 {
     extension(HttpClient httpClient)
     {
-        public HttpClient AddHeaders(ReadOnlySpan<HttpHeader> headers)
+        public HttpClient SetHeaders(ReadOnlySpan<HttpHeader> headers)
         {
             httpClient.DefaultRequestHeaders.Clear();
 
@@ -17,6 +17,13 @@ public static class HttpClientExtension
             {
                 httpClient.DefaultRequestHeaders.Add(header.Name, header.Values.ToArray());
             }
+
+            return httpClient;
+        }
+
+        public HttpClient AddHeader(HttpHeader header)
+        {
+            httpClient.DefaultRequestHeaders.Add(header.Name, header.Values.ToArray());
 
             return httpClient;
         }

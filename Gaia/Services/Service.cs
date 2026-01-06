@@ -13,11 +13,12 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
     ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(TGetRequest request, CancellationToken ct);
 
     ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+        Guid idempotentId,
         TPostRequest request,
         CancellationToken ct
     );
 
-    TPostResponse Post(TPostRequest request);
+    TPostResponse Post(Guid idempotentId, TPostRequest request);
     TGetResponse Get(TGetRequest request);
 }
 
@@ -52,9 +53,11 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return _tryPolicyService.TryAsync(async () =>
         {
             var headers = _headersFactory.Create();
+
             using var httpResponse = await _httpClient
-                .AddHeaders(headers.Span)
+                .SetHeaders(headers.Span)
                 .PostAsJsonAsync(RouteHelper.Get, request, _jsonSerializerOptions, ct);
+
             var response = await httpResponse.Content.ReadFromJsonAsync<TGetResponse>(
                 _jsonSerializerOptions,
                 ct
@@ -65,6 +68,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
     }
 
     public ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+        Guid idempotentId,
         TPostRequest request,
         CancellationToken ct
     )
@@ -72,9 +76,12 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return _tryPolicyService.TryAsync(async () =>
         {
             var headers = _headersFactory.Create();
+
             using var httpResponse = await _httpClient
-                .AddHeaders(headers.Span)
+                .SetHeaders(headers.Span)
+                .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
                 .PostAsJsonAsync(RouteHelper.Post, request, _jsonSerializerOptions, ct);
+
             var response = await httpResponse.Content.ReadFromJsonAsync<TPostResponse>(
                 _jsonSerializerOptions,
                 ct
@@ -84,14 +91,17 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         });
     }
 
-    public TPostResponse Post(TPostRequest request)
+    public TPostResponse Post(Guid idempotentId, TPostRequest request)
     {
         return _tryPolicyService.Try(() =>
         {
             var headers = _headersFactory.Create();
+
             using var httpResponse = _httpClient
-                .AddHeaders(headers.Span)
+                .SetHeaders(headers.Span)
+                .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
                 .PostAsJson(RouteHelper.Post, request, _jsonSerializerOptions);
+
             var response = httpResponse.Content.ReadFromJson<TPostResponse>(_jsonSerializerOptions);
 
             return response.ThrowIfNull();
@@ -103,9 +113,11 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return _tryPolicyService.Try(() =>
         {
             var headers = _headersFactory.Create();
+
             using var httpResponse = _httpClient
-                .AddHeaders(headers.Span)
+                .SetHeaders(headers.Span)
                 .PostAsJson(RouteHelper.Get, request, _jsonSerializerOptions);
+
             var response = httpResponse.Content.ReadFromJson<TGetResponse>(_jsonSerializerOptions);
 
             return response.ThrowIfNull();
