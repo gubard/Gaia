@@ -1,10 +1,10 @@
 ﻿namespace Gaia.Models;
 
-public class Dis : IDisposable
+public class Finally : IDisposable
 {
     private readonly Action _dispose;
 
-    public Dis(Action dispose)
+    public Finally(Action dispose)
     {
         _dispose = dispose;
     }
