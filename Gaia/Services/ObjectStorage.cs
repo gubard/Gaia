@@ -7,6 +7,7 @@ public interface IObjectStorage
 {
     ConfiguredValueTaskAwaitable<T?> LoadAsync<T>(string key, CancellationToken ct);
     ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct);
+    void Save(string key, object obj);
 }
 
 public sealed class FileObjectStorage : IObjectStorage
@@ -25,6 +26,19 @@ public sealed class FileObjectStorage : IObjectStorage
     public ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct)
     {
         return SaveCore(key, obj, ct).ConfigureAwait(false);
+    }
+
+    public void Save(string key, object obj)
+    {
+        var file = _directory.ToFile($"{key}.{_serializer.FileExtension}");
+
+        if (file.Exists)
+        {
+            file.Delete();
+        }
+
+        using var stream = file.Create();
+        _serializer.Serialize(stream, obj);
     }
 
     private readonly DirectoryInfo _directory;
