@@ -5,29 +5,21 @@ namespace Gaia.Services;
 
 public interface ITryPolicyService
 {
-    event Action<Exception> OnError;
-    event Action OnSuccess;
-
     T Try<T>(Func<T> func)
         where T : IValidationErrors, new();
 
-    ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ValueTask<T>> func)
+    ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ConfiguredValueTaskAwaitable<T>> func)
         where T : IValidationErrors, new();
 }
 
 public class TryPolicyService : ITryPolicyService
 {
-    private readonly byte _tryCount;
-    private readonly TimeSpan _delay;
-
-    public TryPolicyService(byte tryCount, TimeSpan delay)
+    public TryPolicyService(byte tryCount, TimeSpan delay, Action<Exception> onError)
     {
         _tryCount = tryCount;
         _delay = delay;
+        _onError = onError;
     }
-
-    public event Action<Exception>? OnError;
-    public event Action? OnSuccess;
 
     public T Try<T>(Func<T> func)
         where T : IValidationErrors, new()
@@ -40,14 +32,13 @@ public class TryPolicyService : ITryPolicyService
             try
             {
                 var value = func();
-                OnSuccess?.Invoke();
 
                 return value;
             }
             catch (Exception exception)
             {
                 exceptions.Add(exception);
-                OnError?.Invoke(exception);
+                _onError?.Invoke(exception);
                 Thread.Sleep(_delay);
             }
         }
@@ -59,13 +50,17 @@ public class TryPolicyService : ITryPolicyService
         return result;
     }
 
-    public ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ValueTask<T>> func)
+    public ConfiguredValueTaskAwaitable<T> TryAsync<T>(Func<ConfiguredValueTaskAwaitable<T>> func)
         where T : IValidationErrors, new()
     {
         return TryCore(func).ConfigureAwait(false);
     }
 
-    private async ValueTask<T> TryCore<T>(Func<ValueTask<T>> func)
+    private readonly byte _tryCount;
+    private readonly TimeSpan _delay;
+    private readonly Action<Exception> _onError;
+
+    private async ValueTask<T> TryCore<T>(Func<ConfiguredValueTaskAwaitable<T>> func)
         where T : IValidationErrors, new()
     {
         var count = 0;
@@ -76,14 +71,13 @@ public class TryPolicyService : ITryPolicyService
             try
             {
                 var value = await func();
-                OnSuccess?.Invoke();
 
                 return value;
             }
             catch (Exception exception)
             {
                 exceptions.Add(exception);
-                OnError?.Invoke(exception);
+                _onError?.Invoke(exception);
                 await Task.Delay(_delay);
             }
         }
