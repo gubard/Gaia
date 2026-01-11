@@ -1,23 +1,28 @@
-﻿namespace Gaia.Services;
+﻿using System.Runtime.CompilerServices;
 
-public interface IMemoryCache<in TSource>
-{
-    void Update(TSource source);
-}
+namespace Gaia.Services;
 
-public class EmptyMemoryCache<TSource> : IMemoryCache<TSource>
-{
-    public static readonly EmptyMemoryCache<TSource> Instance = new();
+public interface IMemoryCache<in TPostRequest, in TGetResponse>
+    : ICache<TPostRequest, TGetResponse>;
 
-    public void Update(TSource source) { }
-}
-
-public abstract class MemoryCache<TSource, TItem> : IMemoryCache<TSource>
+public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
+    : IMemoryCache<TPostRequest, TGetResponse>
     where TItem : IStaticFactory<Guid, TItem>
 {
-    protected readonly Dictionary<Guid, TItem> Items = new();
+    public abstract void Update(TPostRequest source);
+    public abstract void Update(TGetResponse source);
 
-    public abstract void Update(TSource source);
+    public abstract ConfiguredValueTaskAwaitable UpdateAsync(
+        TPostRequest source,
+        CancellationToken ct
+    );
+
+    public abstract ConfiguredValueTaskAwaitable UpdateAsync(
+        TGetResponse source,
+        CancellationToken ct
+    );
+
+    protected readonly Dictionary<Guid, TItem> Items = new();
 
     protected TItem GetItem(Guid id)
     {

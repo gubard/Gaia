@@ -81,7 +81,9 @@ public sealed class PropertyMaxSizeValidationError
     }
 }
 
-public sealed class PropertyMinSizeValidationError : PropertyValidationError
+public sealed class PropertyMinSizeValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
 {
     public PropertyMinSizeValidationError(string propertyName, ulong actualSize, ulong minSize)
         : base(propertyName)
@@ -92,9 +94,22 @@ public sealed class PropertyMinSizeValidationError : PropertyValidationError
 
     public ulong MinSize { get; }
     public ulong ActualSize { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(MinSize) => MinSize.ToString(),
+            nameof(ActualSize) => ActualSize.ToString(),
+            nameof(PropertyName) => PropertyName,
+            _ => null,
+        };
+    }
 }
 
-public sealed class PropertyNotEqualValidationError : PropertyValidationError
+public sealed class PropertyNotEqualValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
 {
     public PropertyNotEqualValidationError(string propertyName, string secondPropertyName)
         : base(propertyName)
@@ -103,4 +118,14 @@ public sealed class PropertyNotEqualValidationError : PropertyValidationError
     }
 
     public string SecondPropertyName { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(PropertyName) => PropertyName,
+            nameof(SecondPropertyName) => SecondPropertyName,
+            _ => null,
+        };
+    }
 }

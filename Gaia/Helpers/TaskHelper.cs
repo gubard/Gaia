@@ -11,4 +11,19 @@ public static class TaskHelper
     {
         return ValueTask.FromResult(value).ConfigureAwait(false);
     }
+
+    public static ConfiguredValueTaskAwaitable WhenAllAsync(
+        params ConfiguredValueTaskAwaitable[] tasks
+    )
+    {
+        return WhenAllCore(tasks).ConfigureAwait(false);
+    }
+
+    private static async ValueTask WhenAllCore(ConfiguredValueTaskAwaitable[] tasks)
+    {
+        foreach (var task in tasks)
+        {
+            await task;
+        }
+    }
 }
