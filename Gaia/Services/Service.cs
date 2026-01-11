@@ -17,9 +17,6 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
         TPostRequest request,
         CancellationToken ct
     );
-
-    TPostResponse Post(Guid idempotentId, TPostRequest request);
-    TGetResponse Get(TGetRequest request);
 }
 
 public interface IHttpService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse>
@@ -71,72 +68,16 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         );
     }
 
-    public TPostResponse Post(Guid idempotentId, TPostRequest request)
-    {
-        return _tryPolicyService.Try(() =>
-        {
-            var headers = _headersFactory.Create();
-
-            using var httpResponse = _httpClient
-                .SetHeaders(headers.Span)
-                .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
-                .PostAsJson(RouteHelper.Post, request, _options);
-
-            var response = httpResponse.Content.ReadFromJson<TPostResponse>(_options);
-
-            return response.ThrowIfNull();
-        });
-    }
-
-    public TGetResponse Get(TGetRequest request)
-    {
-        return _tryPolicyService.Try(() => GetRequest(request));
-    }
-
-    public ConfiguredValueTaskAwaitable<bool> HealthCheckAsync(CancellationToken ct)
+    public ConfiguredValueTaskAwaitable<IValidationErrors> HealthCheckAsync(CancellationToken ct)
     {
         return HealthCheckCore(ct).ConfigureAwait(false);
     }
 
-    public bool HealthCheck()
+    public async ValueTask<IValidationErrors> HealthCheckCore(CancellationToken ct)
     {
-        try
-        {
-            GetRequest(new());
+        var response = await GetAsync(new(), ct);
 
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async ValueTask<bool> HealthCheckCore(CancellationToken ct)
-    {
-        try
-        {
-            await GetRequestAsync(new(), ct);
-
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private TGetResponse GetRequest(TGetRequest request)
-    {
-        var headers = _headersFactory.Create();
-
-        using var httpResponse = _httpClient
-            .SetHeaders(headers.Span)
-            .PostAsJson(RouteHelper.Get, request, _options);
-
-        var response = httpResponse.Content.ReadFromJson<TGetResponse>(_options);
-
-        return response.ThrowIfNull();
+        return response;
     }
 
     private async ValueTask<TGetResponse> GetRequestAsync(TGetRequest request, CancellationToken ct)

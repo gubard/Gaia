@@ -9,9 +9,6 @@ public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
     : IMemoryCache<TPostRequest, TGetResponse>
     where TItem : IStaticFactory<Guid, TItem>
 {
-    public abstract void Update(TPostRequest source);
-    public abstract void Update(TGetResponse source);
-
     public abstract ConfiguredValueTaskAwaitable UpdateAsync(
         TPostRequest source,
         CancellationToken ct

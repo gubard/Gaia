@@ -4,6 +4,5 @@ namespace Gaia.Services;
 
 public interface IHealthCheck
 {
-    ConfiguredValueTaskAwaitable<bool> HealthCheckAsync(CancellationToken ct);
-    bool HealthCheck();
+    ConfiguredValueTaskAwaitable<IValidationErrors> HealthCheckAsync(CancellationToken ct);
 }
