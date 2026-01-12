@@ -88,6 +88,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
             .SetHeaders(headers.Span)
             .PostAsJsonAsync(RouteHelper.Get, request, _options, ct);
 
+        httpResponse.EnsureSuccessStatusCode();
         var response = await httpResponse.Content.ReadFromJsonAsync<TGetResponse>(_options, ct);
 
         return response.ThrowIfNull();
@@ -106,6 +107,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
             .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
             .PostAsJsonAsync(RouteHelper.Post, request, _options, ct);
 
+        httpResponse.EnsureSuccessStatusCode();
         var response = await httpResponse.Content.ReadFromJsonAsync<TPostResponse>(_options, ct);
 
         return response.ThrowIfNull();
