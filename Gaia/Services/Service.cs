@@ -31,24 +31,6 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
     where TPostResponse : IValidationErrors, new()
     where TGetRequest : new()
 {
-    private readonly HttpClient _httpClient;
-    private readonly JsonSerializerOptions _options;
-    private readonly ITryPolicyService _tryPolicyService;
-    private readonly IFactory<Memory<HttpHeader>> _headersFactory;
-
-    protected HttpService(
-        HttpClient httpClient,
-        JsonSerializerOptions options,
-        ITryPolicyService tryPolicyService,
-        IFactory<Memory<HttpHeader>> headersFactory
-    )
-    {
-        _httpClient = httpClient;
-        _options = options;
-        _tryPolicyService = tryPolicyService;
-        _headersFactory = headersFactory;
-    }
-
     public ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(
         TGetRequest request,
         CancellationToken ct
@@ -75,10 +57,30 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
 
     public async ValueTask<IValidationErrors> HealthCheckCore(CancellationToken ct)
     {
-        var response = await GetAsync(new(), ct);
+        var response = await GetAsync(CreateHealthCheckGetRequest(), ct);
 
         return response;
     }
+
+    protected HttpService(
+        HttpClient httpClient,
+        JsonSerializerOptions options,
+        ITryPolicyService tryPolicyService,
+        IFactory<Memory<HttpHeader>> headersFactory
+    )
+    {
+        _httpClient = httpClient;
+        _options = options;
+        _tryPolicyService = tryPolicyService;
+        _headersFactory = headersFactory;
+    }
+
+    protected abstract TGetRequest CreateHealthCheckGetRequest();
+
+    private readonly HttpClient _httpClient;
+    private readonly JsonSerializerOptions _options;
+    private readonly ITryPolicyService _tryPolicyService;
+    private readonly IFactory<Memory<HttpHeader>> _headersFactory;
 
     private async ValueTask<TGetResponse> GetRequestAsync(TGetRequest request, CancellationToken ct)
     {
