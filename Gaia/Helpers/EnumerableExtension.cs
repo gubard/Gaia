@@ -5,6 +5,20 @@ namespace Gaia.Helpers;
 public static class EnumerableExtension
 {
     public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable)
+        where T : class
+    {
+        foreach (var item in enumerable)
+        {
+            if (item is null)
+            {
+                continue;
+            }
+
+            yield return item;
+        }
+    }
+
+    public static IEnumerable<T> WhereNotNullStruct<T>(this IEnumerable<T?> enumerable)
         where T : struct
     {
         foreach (var item in enumerable)
