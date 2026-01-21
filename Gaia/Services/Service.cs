@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Gaia.Helpers;
@@ -90,6 +91,14 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
             .SetHeaders(headers.Span)
             .PostAsJsonAsync(RouteHelper.Get, request, _options, ct);
 
+        if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            var result = new TGetResponse();
+            result.ValidationErrors.Add(new UnauthorizedValidationError());
+
+            return result;
+        }
+
         httpResponse.EnsureSuccessStatusCode();
         var response = await httpResponse.Content.ReadFromJsonAsync<TGetResponse>(_options, ct);
 
@@ -108,6 +117,14 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
             .SetHeaders(headers.Span)
             .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
             .PostAsJsonAsync(RouteHelper.Post, request, _options, ct);
+
+        if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            var result = new TPostResponse();
+            result.ValidationErrors.Add(new UnauthorizedValidationError());
+
+            return result;
+        }
 
         httpResponse.EnsureSuccessStatusCode();
         var response = await httpResponse.Content.ReadFromJsonAsync<TPostResponse>(_options, ct);
