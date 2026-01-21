@@ -5,7 +5,9 @@ namespace Gaia.Services;
 
 public interface IObjectStorage
 {
-    ConfiguredValueTaskAwaitable<T?> LoadAsync<T>(string key, CancellationToken ct);
+    ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
+        where T : new();
+
     ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct);
 }
 
@@ -17,7 +19,8 @@ public sealed class FileObjectStorage : IObjectStorage
         _serializer = serializer;
     }
 
-    public ConfiguredValueTaskAwaitable<T?> LoadAsync<T>(string key, CancellationToken ct)
+    public ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
+        where T : new()
     {
         return LoadCore<T>(key, ct).ConfigureAwait(false);
     }
@@ -43,18 +46,19 @@ public sealed class FileObjectStorage : IObjectStorage
         await _serializer.SerializeAsync(stream, obj, ct);
     }
 
-    private async ValueTask<T?> LoadCore<T>(string key, CancellationToken ct)
+    private async ValueTask<T> LoadCore<T>(string key, CancellationToken ct)
+        where T : new()
     {
         var file = _directory.ToFile($"{key}.{_serializer.FileExtension}");
 
         if (!file.Exists)
         {
-            return default;
+            return new();
         }
 
         await using var stream = file.OpenRead();
         var value = await _serializer.DeserializeAsync<T>(stream, ct);
 
-        return value;
+        return value ?? new();
     }
 }
