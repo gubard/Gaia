@@ -53,7 +53,7 @@ public class StorageService : IStorageService
             or Os.Linux
             or Os.Browser
             or Os.FreeBsd
-            or Os.Ios
+            or Os.iOS
             or Os.MacCatalyst
             or Os.TvOs
             or Os.WatchOs
@@ -112,7 +112,7 @@ public class StorageService : IStorageService
                 return new(appDirectoryPath);
             }
             case Os.Browser:
-            case Os.Ios:
+            case Os.iOS:
             case Os.MacCatalyst:
             case Os.TvOs:
             case Os.WatchOs:

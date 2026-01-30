@@ -5,6 +5,7 @@ namespace Gaia.Helpers;
 public static class OsHelper
 {
     public static readonly Os OsType;
+    public static readonly bool IsMobile;
 
     static OsHelper()
     {
@@ -23,6 +24,7 @@ public static class OsHelper
         else if (OperatingSystem.IsAndroid())
         {
             OsType = Os.Android;
+            IsMobile = true;
         }
         else if (OperatingSystem.IsBrowser())
         {
@@ -34,7 +36,8 @@ public static class OsHelper
         }
         else if (OperatingSystem.IsIOS())
         {
-            OsType = Os.Ios;
+            OsType = Os.iOS;
+            IsMobile = true;
         }
         else if (OperatingSystem.IsMacCatalyst())
         {

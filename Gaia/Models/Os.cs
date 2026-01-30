@@ -8,7 +8,7 @@ public enum Os
     Android,
     Browser,
     FreeBsd,
-    Ios,
+    iOS,
     MacCatalyst,
     TvOs,
     WatchOs,
