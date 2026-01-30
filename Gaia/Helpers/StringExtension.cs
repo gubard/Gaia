@@ -28,4 +28,9 @@ public static class StringExtension
     {
         return string.IsNullOrWhiteSpace(str);
     }
+
+    public static Uri ToUri(this string str)
+    {
+        return new(str);
+    }
 }
