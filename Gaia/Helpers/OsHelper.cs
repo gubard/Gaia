@@ -6,20 +6,24 @@ public static class OsHelper
 {
     public static readonly Os OsType;
     public static readonly bool IsMobile;
+    public static readonly bool IsDesktop;
 
     static OsHelper()
     {
         if (OperatingSystem.IsWindows())
         {
             OsType = Os.Windows;
+            IsDesktop = true;
         }
         else if (OperatingSystem.IsMacOS())
         {
             OsType = Os.MacOs;
+            IsDesktop = true;
         }
         else if (OperatingSystem.IsLinux())
         {
             OsType = Os.Linux;
+            IsDesktop = true;
         }
         else if (OperatingSystem.IsAndroid())
         {
@@ -33,6 +37,7 @@ public static class OsHelper
         else if (OperatingSystem.IsFreeBSD())
         {
             OsType = Os.FreeBsd;
+            IsDesktop = true;
         }
         else if (OperatingSystem.IsIOS())
         {
@@ -42,6 +47,7 @@ public static class OsHelper
         else if (OperatingSystem.IsMacCatalyst())
         {
             OsType = Os.MacCatalyst;
+            IsDesktop = true;
         }
         else if (OperatingSystem.IsTvOS())
         {
