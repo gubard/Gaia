@@ -9,17 +9,17 @@ public interface ITransformer<in TInput, out TOutput>
 
 public abstract class StringToEncoding : ITransformer<string, byte[]>
 {
-    private readonly Encoding _encoding;
-
-    public StringToEncoding(Encoding encoding)
-    {
-        _encoding = encoding;
-    }
-
     public byte[] Transform(string input)
     {
         return _encoding.GetBytes(input);
     }
+
+    protected StringToEncoding(Encoding encoding)
+    {
+        _encoding = encoding;
+    }
+
+    private readonly Encoding _encoding;
 }
 
 public sealed class StringToUtf8 : StringToEncoding
