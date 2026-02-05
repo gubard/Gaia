@@ -9,7 +9,6 @@ public interface ISerializer
 
     ConfiguredValueTaskAwaitable<T?> DeserializeAsync<T>(Stream stream, CancellationToken ct);
     ConfiguredValueTaskAwaitable SerializeAsync(Stream stream, object obj, CancellationToken ct);
-    void Serialize(Stream stream, object obj);
 }
 
 public class JsonSerializer : ISerializer
@@ -33,11 +32,6 @@ public class JsonSerializer : ISerializer
     )
     {
         return SerializeCore(stream, obj, ct).ConfigureAwait(false);
-    }
-
-    public void Serialize(Stream stream, object obj)
-    {
-        System.Text.Json.JsonSerializer.Serialize(stream, obj, _options);
     }
 
     private readonly JsonSerializerOptions _options;
