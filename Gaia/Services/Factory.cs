@@ -18,7 +18,7 @@ public interface IFactory<out TOutput>
     TOutput Create();
 }
 
-public class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
+public sealed class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
 {
     public static readonly EmptyHeadersFactory Instance = new();
 
@@ -28,7 +28,7 @@ public class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
     }
 }
 
-public class HashServiceFactory : IFactory<string, IHashService<string, string>>
+public sealed class HashServiceFactory : IFactory<string, IHashService<string, string>>
 {
     private readonly FrozenDictionary<string, IHashService<string, string>> _hashServices;
 

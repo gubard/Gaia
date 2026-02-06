@@ -20,17 +20,29 @@ public static class TaskHelper
         return WhenAllCore(tasks, ct).ConfigureAwait(false);
     }
 
-    private static async ValueTask WhenAllCore(
-        ConfiguredValueTaskAwaitable[] tasks,
+    public static ConfiguredValueTaskAwaitable<TResult[]> WhenAllAsync<TResult>(
+        ConfiguredValueTaskAwaitable<TResult>[] tasks,
         CancellationToken ct
     )
     {
-        foreach (var task in tasks)
+        return WhenAllCore(tasks, ct).ConfigureAwait(false);
+    }
+
+    private static async ValueTask<TResult[]> WhenAllCore<TResult>(
+        ConfiguredValueTaskAwaitable<TResult>[] tasks,
+        CancellationToken ct
+    )
+    {
+        var result = new TResult[tasks.Length];
+
+        for (var index = 0; index < tasks.Length; index++)
         {
             ct.ThrowIfCancellationRequested();
-
-            await task;
+            var task = tasks[index];
+            result[index] = await task;
         }
+
+        return result;
     }
 
     public static ConfiguredValueTaskAwaitable<TResult[]> WhenAllAsync<TResult>(
@@ -44,6 +56,19 @@ public static class TaskHelper
         }
 
         return WhenAllCore(tasks, ct).ConfigureAwait(false);
+    }
+
+    private static async ValueTask WhenAllCore(
+        ConfiguredValueTaskAwaitable[] tasks,
+        CancellationToken ct
+    )
+    {
+        foreach (var task in tasks)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            await task;
+        }
     }
 
     private static async ValueTask<TResult[]> WhenAllCore<TResult>(
