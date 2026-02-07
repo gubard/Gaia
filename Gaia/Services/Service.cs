@@ -56,13 +56,6 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return HealthCheckCore(ct).ConfigureAwait(false);
     }
 
-    public async ValueTask<IValidationErrors> HealthCheckCore(CancellationToken ct)
-    {
-        var response = await GetAsync(CreateHealthCheckGetRequest(), ct);
-
-        return response;
-    }
-
     protected HttpService(
         HttpClient httpClient,
         JsonSerializerOptions options,
@@ -82,6 +75,13 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
     private readonly JsonSerializerOptions _options;
     private readonly ITryPolicyService _tryPolicyService;
     private readonly IFactory<Memory<HttpHeader>> _headersFactory;
+
+    private async ValueTask<IValidationErrors> HealthCheckCore(CancellationToken ct)
+    {
+        var response = await GetAsync(CreateHealthCheckGetRequest(), ct);
+
+        return response;
+    }
 
     private async ValueTask<TGetResponse> GetRequestAsync(TGetRequest request, CancellationToken ct)
     {
