@@ -17,7 +17,7 @@ public interface ILinearBarcodeSerializer
 public sealed class CodabarLinearBarcodeSerializer : ILinearBarcodeSerializer
 {
     public string Name => "Codabar";
-    public byte BarWidth => 1;
+    public byte BarWidth => 2;
 
     public Span<bool> Serialize(ReadOnlySpan<char> barcode)
     {
@@ -74,94 +74,22 @@ public sealed class CodabarLinearBarcodeSerializer : ILinearBarcodeSerializer
         ReadOnlyMemory<bool>
     >
     {
-        { '0', new[] { false, false, false, false, false, true, true, true, true, true, true } },
-        { '1', new[] { false, false, false, false, true, true, true, true, true, true, false } },
-        { '2', new[] { false, false, false, true, true, true, false, false, true, true, true } },
-        { '3', new[] { true, true, true, true, true, true, false, false, false, false, false } },
-        { '4', new[] { false, false, true, true, true, false, false, true, true, true, false } },
-        { '5', new[] { true, true, true, false, false, false, false, true, true, true, false } },
-        { '6', new[] { false, true, true, true, false, false, false, false, true, true, true } },
-        { '7', new[] { false, true, true, true, false, false, true, true, true, false, false } },
-        { '8', new[] { false, true, true, true, true, true, true, false, false, false, false } },
-        { '9', new[] { true, true, true, false, false, true, true, true, false, false, false } },
-        { '-', new[] { false, false, false, true, true, true, true, true, true, false, false } },
-        { '$', new[] { false, false, true, true, true, true, true, true, false, false, false } },
-        {
-            ':',
-            new[]
-            {
-                true,
-                true,
-                true,
-                false,
-                false,
-                false,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-            }
-        },
-        {
-            '/',
-            new[]
-            {
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-                false,
-                false,
-                false,
-                true,
-                true,
-                true,
-            }
-        },
-        {
-            '.',
-            new[]
-            {
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-                false,
-                false,
-            }
-        },
-        {
-            '+',
-            new[]
-            {
-                false,
-                false,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-                false,
-                true,
-                true,
-                true,
-            }
-        },
+        { '0', new[] { false, false, false, false, false, true, true } },
+        { '1', new[] { false, false, false, false, true, true, false } },
+        { '2', new[] { false, false, false, true, false, false, true } },
+        { '3', new[] { true, true, false, false, false, false, false } },
+        { '4', new[] { false, false, true, false, false, true, false } },
+        { '5', new[] { true, false, false, false, false, true, false } },
+        { '6', new[] { false, true, false, false, false, false, true } },
+        { '7', new[] { false, true, false, false, true, false, false } },
+        { '8', new[] { false, true, true, false, false, false, false } },
+        { '9', new[] { true, false, false, true, false, false, false } },
+        { '-', new[] { false, false, false, true, true, false, false } },
+        { '$', new[] { false, false, true, true, false, false, false } },
+        { ':', new[] { true, false, false, false, true, false, true } },
+        { '/', new[] { true, false, true, false, false, false, true } },
+        { '.', new[] { true, false, true, false, true, false, false } },
+        { '+', new[] { false, false, true, false, true, false, true } },
     }.ToFrozenDictionary();
 
     private static readonly ReadOnlyMemory<bool> StartStop = new[]
@@ -170,13 +98,7 @@ public sealed class CodabarLinearBarcodeSerializer : ILinearBarcodeSerializer
         false,
         true,
         true,
-        true,
-        true,
-        true,
-        true,
         false,
-        true,
-        true,
         true,
         false,
     };
