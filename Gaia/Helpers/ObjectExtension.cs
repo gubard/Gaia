@@ -4,6 +4,18 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static int Sum<T>(this ReadOnlySpan<T> span, Func<T, int> selector)
+    {
+        var sum = 0;
+
+        foreach (var item in span)
+        {
+            sum += selector(item);
+        }
+
+        return sum;
+    }
+
     public static ReadOnlyMemory<T> ToReadOnlyMemory<T>(this T[] array)
     {
         return array;

@@ -21,6 +21,17 @@ public sealed class PropertyEmptyValidationError(string propertyName)
 public sealed class PropertyInvalidValidationError(string propertyName)
     : PropertyValidationError(propertyName);
 
+public sealed class PropertyValueValidationError : PropertyValidationError
+{
+    public PropertyValueValidationError(string propertyName, ValidationError validationError)
+        : base(propertyName)
+    {
+        ValidationError = validationError;
+    }
+
+    public ValidationError ValidationError { get; }
+}
+
 public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidationError
 {
     public PropertyTheDateHasExpiredValidationError(
@@ -36,23 +47,6 @@ public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidatio
 
     public DateOnly ActualDate { get; }
     public DateOnly ExpireDate { get; }
-}
-
-public sealed class PropertyContainsInvalidValueValidationError<T> : PropertyValidationError
-{
-    public PropertyContainsInvalidValueValidationError(
-        string propertyName,
-        T invalidValue,
-        T[] validValues
-    )
-        : base(propertyName)
-    {
-        InvalidValue = invalidValue;
-        ValidValues = validValues;
-    }
-
-    public T InvalidValue { get; }
-    public T[] ValidValues { get; }
 }
 
 public sealed class PropertyMaxSizeValidationError
