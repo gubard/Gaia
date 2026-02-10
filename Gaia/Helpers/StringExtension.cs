@@ -4,6 +4,11 @@ namespace Gaia.Helpers;
 
 public static class StringExtension
 {
+    public static Guid ToGuid(this string id)
+    {
+        return Guid.Parse(id);
+    }
+
     public static string JoinString(this IEnumerable<string> enumerable, string separator)
     {
         return string.Join(separator, enumerable);
