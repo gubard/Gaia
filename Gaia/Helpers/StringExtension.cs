@@ -1,9 +1,20 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Gaia.Services;
 
 namespace Gaia.Helpers;
 
 public static class StringExtension
 {
+    public static FtpStatusCode ToFtpStatusCode(this ReadOnlySpan<char> str)
+    {
+        return Enum.Parse<FtpStatusCode>(str);
+    }
+
+    public static FtpStatusCode ToFtpStatusCode(this string str)
+    {
+        return Enum.Parse<FtpStatusCode>(str);
+    }
+
     public static Guid ToGuid(this string id)
     {
         return Guid.Parse(id);
