@@ -184,13 +184,12 @@ public sealed class FtpClientService : IFtpClientService
 
     private async ValueTask<Memory<FtpItem>> GetListItemCore(string path, CancellationToken ct)
     {
-        await ExecuteAsync($"CWD \"{path}\"", FtpStatusCode.RequestedFileActionOkay, ct);
         var parameters = await GetPasvAsync(ct);
         var fileEntries = new List<FtpItem>();
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync("MLSD", FtpStatusCode.OpeningAsciiModeDataConnection, ct);
+            await ExecuteAsync($"LIST {path}", FtpStatusCode.OpeningAsciiModeDataConnection, ct);
             await using var dataStream = dataClient.GetStream();
             using var dataReader = new StreamReader(dataStream);
 
@@ -219,12 +218,10 @@ public sealed class FtpClientService : IFtpClientService
 
     private FtpItem ParseFtpItem(ReadOnlySpan<char> entry, string path)
     {
-        var spaceIndex = entry.IndexOf(' ');
-        var entryPath = Path.Combine(path, entry.Slice(spaceIndex + 1).ToString());
-
-        var type = entry.Contains("type=dir", StringComparison.Ordinal)
-            ? FtpItemType.Directory
-            : FtpItemType.File;
+        var slice = entry.Slice(entry.IndexOf(':'));
+        var name = slice.Slice(slice.IndexOf(' ') + 1);
+        var entryPath = Path.Combine(path, name.ToString());
+        var type = entry.StartsWith('d') ? FtpItemType.Directory : FtpItemType.File;
 
         return new(entryPath, type);
     }
