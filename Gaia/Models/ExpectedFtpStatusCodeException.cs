@@ -4,11 +4,16 @@ namespace Gaia.Models;
 
 public sealed class ExpectedFtpStatusCodeException : Exception
 {
-    public ExpectedFtpStatusCodeException(FtpStatusCode statusCode)
-        : base($"Unexpected status code: {statusCode}")
+    public ExpectedFtpStatusCodeException(
+        FtpStatusCode actualStatusCode,
+        FtpStatusCode expectedStatusCode
+    )
+        : base($"Unexpected status code: {actualStatusCode}. Expected: {expectedStatusCode}.")
     {
-        StatusCode = statusCode;
+        ActualStatusCode = actualStatusCode;
+        ExpectedStatusCode = expectedStatusCode;
     }
 
-    public FtpStatusCode StatusCode { get; }
+    public FtpStatusCode ActualStatusCode { get; }
+    public FtpStatusCode ExpectedStatusCode { get; }
 }
