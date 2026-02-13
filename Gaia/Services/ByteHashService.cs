@@ -7,7 +7,7 @@ public interface IHashService<in TInput, out TOutput>
     TOutput ComputeHash(TInput input);
 }
 
-public class Sha512HashService : IHashService<byte[], byte[]>, IDisposable
+public sealed class Sha512HashService : IHashService<byte[], byte[]>, IDisposable
 {
     private readonly SHA512 _sha512;
 
@@ -27,7 +27,7 @@ public class Sha512HashService : IHashService<byte[], byte[]>, IDisposable
     }
 }
 
-public class StringHashService : IHashService<string, string>
+public sealed class StringHashService : IHashService<string, string>
 {
     private readonly IHashService<byte[], byte[]> _hashService;
     private readonly ITransformer<string, byte[]> _stingToBytesTransformer;

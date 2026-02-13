@@ -2,7 +2,7 @@
 
 namespace Gaia.Services;
 
-public class AutoDictionary<TKey, TItem>
+public sealed class AutoDictionary<TKey, TItem>
     where TItem : IStaticFactory<TKey, TItem>, IId<TKey>
     where TKey : notnull
 {

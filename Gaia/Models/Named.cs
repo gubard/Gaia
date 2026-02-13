@@ -1,6 +1,6 @@
 ﻿namespace Gaia.Models;
 
-public class Named<TValue>
+public sealed class Named<TValue>
 {
     public Named(string name, TValue value)
     {

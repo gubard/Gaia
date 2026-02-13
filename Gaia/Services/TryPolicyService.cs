@@ -12,7 +12,7 @@ public interface ITryPolicyService
         where T : IValidationErrors, new();
 }
 
-public class TryPolicyService : ITryPolicyService
+public sealed class TryPolicyService : ITryPolicyService
 {
     public TryPolicyService(byte tryCount, TimeSpan delay, Action<Exception> onError)
     {

@@ -28,7 +28,7 @@ public sealed class StringToUtf8 : StringToEncoding
         : base(Encoding.UTF8) { }
 }
 
-public class BytesToHex : ITransformer<byte[], string>
+public sealed class BytesToHex : ITransformer<byte[], string>
 {
     public string Transform(byte[] input)
     {

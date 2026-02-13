@@ -9,7 +9,7 @@ public interface IStorageService
     DirectoryInfo GetDbDirectory();
 }
 
-public class StorageService : IStorageService
+public sealed class StorageService : IStorageService
 {
     private readonly DirectoryInfo _appDirectory;
     private readonly DirectoryInfo _dbDirectory;

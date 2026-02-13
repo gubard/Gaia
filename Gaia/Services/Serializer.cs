@@ -11,7 +11,7 @@ public interface ISerializer
     ConfiguredValueTaskAwaitable SerializeAsync(Stream stream, object obj, CancellationToken ct);
 }
 
-public class JsonSerializer : ISerializer
+public sealed class JsonSerializer : ISerializer
 {
     public JsonSerializer(JsonSerializerOptions options)
     {

@@ -7,7 +7,7 @@ public interface IStringFormater
     string Format(string format, params object[] parameters);
 }
 
-public class StringFormater : IStringFormater
+public sealed class StringFormater : IStringFormater
 {
     public static readonly StringFormater Instance = new();
 

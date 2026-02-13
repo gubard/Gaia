@@ -1,6 +1,6 @@
 namespace Gaia.Models;
 
-public class DayOfYear : IComparable<DayOfYear>
+public sealed class DayOfYear : IComparable<DayOfYear>
 {
     public byte Day { get; set; }
     public Month Month { get; set; }

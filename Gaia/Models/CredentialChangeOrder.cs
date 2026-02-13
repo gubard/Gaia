@@ -1,6 +1,6 @@
 ﻿namespace Gaia.Models;
 
-public class ChangeOrder
+public sealed class ChangeOrder
 {
     public Guid StartId { get; set; }
     public Guid[] InsertIds { get; set; } = [];
