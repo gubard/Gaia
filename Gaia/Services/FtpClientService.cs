@@ -22,19 +22,6 @@ public interface IFtpClientService : IDisposable, IAsyncDisposable
 
 public sealed class FtpClientService : IFtpClientService
 {
-    private FtpClientService(
-        TcpClient tcpClient,
-        NetworkStream stream,
-        StreamWriter streamWriter,
-        StreamReader streamReader
-    )
-    {
-        _tcpClient = tcpClient;
-        _streamWriter = streamWriter;
-        _streamReader = streamReader;
-        _stream = stream;
-    }
-
     public ConfiguredValueTaskAwaitable<bool> IsExistsAsync(string path, CancellationToken ct)
     {
         return IsExistsCore(path, ct).ConfigureAwait(false);
@@ -92,10 +79,39 @@ public sealed class FtpClientService : IFtpClientService
         return GetItemCore(path, ct).ConfigureAwait(false);
     }
 
+    public static ReadOnlyMemory<string> Months = new[]
+    {
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+    };
+
     private readonly TcpClient _tcpClient;
     private readonly NetworkStream _stream;
     private readonly StreamWriter _streamWriter;
     private readonly StreamReader _streamReader;
+
+    private FtpClientService(
+        TcpClient tcpClient,
+        NetworkStream stream,
+        StreamWriter streamWriter,
+        StreamReader streamReader
+    )
+    {
+        _tcpClient = tcpClient;
+        _streamWriter = streamWriter;
+        _streamReader = streamReader;
+        _stream = stream;
+    }
 
     private async ValueTask<bool> IsExistsCore(string path, CancellationToken ct)
     {
@@ -218,12 +234,41 @@ public sealed class FtpClientService : IFtpClientService
 
     private FtpItem ParseFtpItem(ReadOnlySpan<char> entry, string path)
     {
-        var slice = entry.Slice(entry.IndexOf(':'));
-        var name = slice.Slice(slice.IndexOf(' ') + 1);
-        var entryPath = Path.Combine(path, name.ToString());
         var type = entry.StartsWith('d') ? FtpItemType.Directory : FtpItemType.File;
+        var twoDotsIndex = entry.IndexOf(':');
 
-        return new(entryPath, type);
+        if (twoDotsIndex != -1)
+        {
+            var slice = entry.Slice(twoDotsIndex);
+            var name = slice.Slice(slice.IndexOf(' ') + 1);
+            var entryPath = Path.Combine(path, name.ToString());
+
+            return new(entryPath, type);
+        }
+
+        var segments = entry.Split(' ');
+        var findYear = false;
+        var findMonth = false;
+
+        foreach (var segment in segments)
+        {
+            if (findYear)
+            {
+                return new(Path.Combine(path, entry[segment].ToString()), type);
+            }
+
+            if (Months.Span.Contains(entry[segment].ToString()))
+            {
+                findMonth = true;
+            }
+
+            if (segment.End.Value - segment.Start.Value == 4 && findMonth)
+            {
+                findYear = true;
+            }
+        }
+
+        throw new InvalidOperationException($"Invalid FTP entry {entry}");
     }
 
     private (string Host, int Port) ParsePasvResponse(
