@@ -241,7 +241,7 @@ public sealed class FtpClientService : IFtpClientService
         {
             var slice = entry.Slice(twoDotsIndex);
             var name = slice.Slice(slice.IndexOf(' ') + 1);
-            var entryPath = Path.Combine(path, name.ToString());
+            var entryPath = Path.Combine(path, name.ToString()).Replace('\\', '/');
 
             return new(entryPath, type);
         }
@@ -254,7 +254,7 @@ public sealed class FtpClientService : IFtpClientService
         {
             if (findYear)
             {
-                return new(Path.Combine(path, entry[segment].ToString()), type);
+                return new(Path.Combine(path, entry[segment].ToString()).Replace('\\', '/'), type);
             }
 
             if (Months.Span.Contains(entry[segment].ToString()))
