@@ -123,53 +123,39 @@ public sealed class FtpClientService : IFtpClientService
 
     private async ValueTask DownloadItemCore(string path, Stream data, CancellationToken ct)
     {
-        await ExecuteAsync("TYPE I", FtpStatusCode.CommandOkay, ct);
+        await ExecuteAsync("TYPE I", 200, ct);
         var parameters = await GetPasvAsync(ct);
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync(
-                $"RETR \"{path}\"",
-                FtpStatusCode.OpeningAsciiModeDataConnection,
-                ct
-            );
-
+            await ExecuteAsync($"RETR \"{path}\"", 150, ct);
             await using var dataStream = dataClient.GetStream();
             await dataStream.CopyToAsync(data, ct);
         }
 
-        await ReadExpectedStatusAsync(FtpStatusCode.ClosingDataConnectionSuccessful, ct);
+        await ReadExpectedStatusAsync(226, ct);
     }
 
     private async ValueTask<FtpItem> GetItemCore(string path, CancellationToken ct)
     {
-        var response = await ExecuteAsync(
-            $"MLST {path}",
-            FtpStatusCode.RequestedFileActionOkay,
-            ct
-        );
+        var response = await ExecuteAsync($"MLST {path}", 250, ct);
 
         return ParseFtpItem(response.Span, path);
     }
 
     private async ValueTask UploadItemCore(string path, Stream data, CancellationToken ct)
     {
-        await ExecuteAsync("TYPE I", FtpStatusCode.CommandOkay, ct);
+        await ExecuteAsync("TYPE I", 200, ct);
         var parameters = await GetPasvAsync(ct);
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync(
-                $"STOR \"{path}\"",
-                FtpStatusCode.OpeningAsciiModeDataConnection,
-                ct
-            );
-
+            await ExecuteAsync($"STOR \"{path}\"", 150, ct);
             await using var dataStream = dataClient.GetStream();
             await data.CopyToAsync(dataStream, ct);
         }
 
-        await ReadExpectedStatusAsync(FtpStatusCode.ClosingDataConnectionSuccessful, ct);
+        await ReadExpectedStatusAsync(226, ct);
     }
 
     private async ValueTask DeleteItemCore(string path, CancellationToken ct)
@@ -182,7 +168,7 @@ public sealed class FtpClientService : IFtpClientService
     {
         if (item.Type == FtpItemType.File)
         {
-            await ExecuteAsync($"DELE \"{item.Path}\"", FtpStatusCode.RequestedFileActionOkay, ct);
+            await ExecuteAsync($"DELE \"{item.Path}\"", 250, ct);
         }
         else
         {
@@ -194,7 +180,7 @@ public sealed class FtpClientService : IFtpClientService
                 await DeleteItemAsync(i, ct);
             }
 
-            await ExecuteAsync($"RMD \"{item.Path}\"", FtpStatusCode.RequestedFileActionOkay, ct);
+            await ExecuteAsync($"RMD \"{item.Path}\"", 250, ct);
         }
     }
 
@@ -205,7 +191,7 @@ public sealed class FtpClientService : IFtpClientService
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync($"LIST {path}", FtpStatusCode.OpeningAsciiModeDataConnection, ct);
+            await ExecuteAsync($"LIST {path}", 150, ct);
             await using var dataStream = dataClient.GetStream();
             using var dataReader = new StreamReader(dataStream);
 
@@ -215,14 +201,14 @@ public sealed class FtpClientService : IFtpClientService
             }
         }
 
-        await ReadExpectedStatusAsync(FtpStatusCode.ClosingDataConnectionSuccessful, ct);
+        await ReadExpectedStatusAsync(226, ct);
 
         return fileEntries.ToArray();
     }
 
     private async ValueTask<(string Host, int Port)> GetPasvAsync(CancellationToken ct)
     {
-        var response = await ExecuteAsync("PASV", FtpStatusCode.PasvSuccessful, ct);
+        var response = await ExecuteAsync("PASV", 227, ct);
         var valuesStartIndex = response.Span.IndexOf('(');
         var valuesEndIndex = response.Span.LastIndexOf(')');
         var valuesStr = response.Slice(valuesStartIndex + 1, valuesEndIndex - valuesStartIndex - 1);
@@ -292,7 +278,7 @@ public sealed class FtpClientService : IFtpClientService
 
     private async ValueTask<FtpItem> GetCurrenDirectoryCore(CancellationToken ct)
     {
-        var response = await ExecuteAsync("PWD", FtpStatusCode.PathNameCreated, ct);
+        var response = await ExecuteAsync("PWD", 257, ct);
         var firstQuote = response.Span.IndexOf('\"');
         var lastQuote = response.Span.LastIndexOf('\"');
         var path = response.Slice(firstQuote + 1, lastQuote - firstQuote - 1);
@@ -312,58 +298,49 @@ public sealed class FtpClientService : IFtpClientService
         var stream = controlClient.GetStream();
         var writer = new StreamWriter(stream) { AutoFlush = true };
         var reader = new StreamReader(stream);
-        await ReadExpectedStatusAsync(reader, FtpStatusCode.ServiceReady, ct);
+        await ReadExpectedStatusAsync(reader, 220, ct);
         await writer.WriteLineAsync($"USER {username}");
-        await ReadExpectedStatusAsync(reader, FtpStatusCode.UserNameOkay, ct);
+        await ReadExpectedStatusAsync(reader, 331, ct);
         await writer.WriteLineAsync($"PASS {password}");
-        await ReadExpectedStatusAsync(reader, FtpStatusCode.UserLoggedIn, ct);
+        await ReadExpectedStatusAsync(reader, 230, ct);
 
         return new(controlClient, stream, writer, reader);
     }
 
     private async ValueTask<ReadOnlyMemory<char>> ExecuteAsync(
         string command,
-        FtpStatusCode expectedStatus,
+        int statusCode,
         CancellationToken ct
     )
     {
         await _streamWriter.WriteLineAsync(command);
 
-        return await ReadExpectedStatusAsync(expectedStatus, ct);
+        return await ReadExpectedStatusAsync(statusCode, ct);
     }
 
     private ValueTask<ReadOnlyMemory<char>> ReadExpectedStatusAsync(
-        FtpStatusCode expectedStatus,
+        int statusCode,
         CancellationToken ct
     )
     {
-        return ReadExpectedStatusAsync(_streamReader, expectedStatus, ct);
+        return ReadExpectedStatusAsync(_streamReader, statusCode, ct);
     }
 
     private static async ValueTask<ReadOnlyMemory<char>> ReadExpectedStatusAsync(
         StreamReader reader,
-        FtpStatusCode expectedStatus,
+        int statusCode,
         CancellationToken ct
     )
     {
         var str = await reader.ReadLineAsync(ct);
-        var strSpan = str.ThrowIfNull().AsSpan();
-        var index = strSpan.IndexOf(' ');
-        CheckStatus(index == -1 ? strSpan : strSpan.Slice(0, index), expectedStatus);
+        var strSpan = str.ThrowIfNull();
 
-        return strSpan.ToArray();
-    }
-
-    private static void CheckStatus(ReadOnlySpan<char> str, FtpStatusCode expectedStatus)
-    {
-        var status = str.ToFtpStatusCode();
-
-        if (status == expectedStatus)
+        if (strSpan.StartsWith(statusCode.ToString()))
         {
-            return;
+            return strSpan.ToArray();
         }
 
-        throw new ExpectedFtpStatusCodeException(status, expectedStatus);
+        throw new ExpectedFtpStatusCodeException(strSpan, statusCode);
     }
 
     public void Dispose()
@@ -381,24 +358,4 @@ public sealed class FtpClientService : IFtpClientService
         await _streamWriter.DisposeAsync();
         _streamReader.Dispose();
     }
-}
-
-public enum FtpStatusCode
-{
-    CommandOkay = 200,
-    ServiceReady = 220,
-    UserNameOkay = 331,
-    UserLoggedIn = 230,
-    NotLoggedIn = 530,
-    RequestedFileActionOkay = 250,
-    PathNameCreated = 257,
-    RequestedActionNotTaken = 550,
-    DataConnectionAlreadyOpen = 125,
-    FileStatusOkay = 150,
-    ClosingDataConnectionSuccessful = 226,
-    NotOpenDataConnection = 425,
-    ConnectionClosedAborted = 426,
-    PasvSuccessful = 227,
-    OpeningAsciiModeDataConnection = 150,
-    SyntaxError = 500,
 }
