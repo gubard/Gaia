@@ -60,7 +60,7 @@ public sealed class FtpClientService : IFtpClientService
         CancellationToken ct
     )
     {
-        return GetListItemCore(path, ct).ConfigureAwait(false);
+        return GetListItemCore(path, false, ct).ConfigureAwait(false);
     }
 
     public static ConfiguredValueTaskAwaitable<FtpClientService> CreateAsync(
@@ -128,7 +128,7 @@ public sealed class FtpClientService : IFtpClientService
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync($"RETR \"{path}\"", 150, ct);
+            await ExecuteAsync($"RETR {path}", 150, ct);
             await using var dataStream = dataClient.GetStream();
             await dataStream.CopyToAsync(data, ct);
         }
@@ -138,9 +138,9 @@ public sealed class FtpClientService : IFtpClientService
 
     private async ValueTask<FtpItem> GetItemCore(string path, CancellationToken ct)
     {
-        var response = await ExecuteAsync($"MLST {path}", 250, ct);
+        var items = await GetListItemCore(path, true, ct);
 
-        return ParseFtpItem(response.Span, path);
+        return items.ToArray().Single(i => i.Path == path);
     }
 
     private async ValueTask UploadItemCore(string path, Stream data, CancellationToken ct)
@@ -150,7 +150,7 @@ public sealed class FtpClientService : IFtpClientService
 
         using (var dataClient = new TcpClient(parameters.Host, parameters.Port))
         {
-            await ExecuteAsync($"STOR \"{path}\"", 150, ct);
+            await ExecuteAsync($"STOR {path}", 150, ct);
             await using var dataStream = dataClient.GetStream();
             await data.CopyToAsync(dataStream, ct);
         }
@@ -168,11 +168,11 @@ public sealed class FtpClientService : IFtpClientService
     {
         if (item.Type == FtpItemType.File)
         {
-            await ExecuteAsync($"DELE \"{item.Path}\"", 250, ct);
+            await ExecuteAsync($"DELE {item.Path}", 250, ct);
         }
         else
         {
-            var items = await GetListItemCore(item.Path, ct);
+            var items = await GetListItemCore(item.Path, false, ct);
             var array = items.ToArray();
 
             foreach (var i in array)
@@ -180,11 +180,15 @@ public sealed class FtpClientService : IFtpClientService
                 await DeleteItemAsync(i, ct);
             }
 
-            await ExecuteAsync($"RMD \"{item.Path}\"", 250, ct);
+            await ExecuteAsync($"RMD {item.Path}", 250, ct);
         }
     }
 
-    private async ValueTask<Memory<FtpItem>> GetListItemCore(string path, CancellationToken ct)
+    private async ValueTask<Memory<FtpItem>> GetListItemCore(
+        string path,
+        bool isSingle,
+        CancellationToken ct
+    )
     {
         var parameters = await GetPasvAsync(ct);
         var fileEntries = new List<FtpItem>();
@@ -197,7 +201,16 @@ public sealed class FtpClientService : IFtpClientService
 
             while (await dataReader.ReadLineAsync(ct) is { } entry)
             {
-                fileEntries.Add(ParseFtpItem(entry, path));
+                if (isSingle)
+                {
+                    fileEntries.Add(
+                        new(path, entry.StartsWith('d') ? FtpItemType.Directory : FtpItemType.File)
+                    );
+                }
+                else
+                {
+                    fileEntries.Add(ParseFtpItem(entry, path));
+                }
             }
         }
 
