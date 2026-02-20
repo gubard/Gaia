@@ -11,6 +11,29 @@ public interface IObjectStorage
     ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct);
 }
 
+public sealed class MemoryObjectStorage : IObjectStorage
+{
+    private readonly Dictionary<string, object> _storage = new();
+
+    public ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
+        where T : new()
+    {
+        if (_storage.TryGetValue(key, out var value))
+        {
+            return TaskHelper.FromResult((T)value);
+        }
+
+        return TaskHelper.FromResult(new T());
+    }
+
+    public ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct)
+    {
+        _storage[key] = obj;
+
+        return TaskHelper.ConfiguredCompletedTask;
+    }
+}
+
 public sealed class FileObjectStorage : IObjectStorage
 {
     public FileObjectStorage(DirectoryInfo directory, ISerializer serializer)
