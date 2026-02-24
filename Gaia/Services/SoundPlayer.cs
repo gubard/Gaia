@@ -56,6 +56,18 @@ public sealed class LinuxSoundPlayer : ISoundPlayer
             throw new("Failed to open PCM device.");
         }
 
+        using var reg = ct.Register(() =>
+        {
+            try
+            {
+                snd_pcm_drop(pcm);
+            }
+            catch
+            {
+                // best-effort
+            }
+        });
+
         try
         {
             if (
@@ -73,8 +85,41 @@ public sealed class LinuxSoundPlayer : ISoundPlayer
                 throw new("Failed to set PCM parameters.");
             }
 
-            snd_pcm_writei(pcm, soundData.ToArray(), soundData.Length / 4);
+            const int bytesPerFrame = 4;
+            const int chunkFrames = 2048;
+            var chunkBytes = chunkFrames * bytesPerFrame;
+            var tmp = new byte[chunkBytes];
+            var remaining = soundData;
+
+            while (remaining.Length > 0)
+            {
+                ct.ThrowIfCancellationRequested();
+                var take = Math.Min(tmp.Length, remaining.Length);
+                remaining.Span.Slice(0, take).CopyTo(tmp);
+                remaining = remaining.Slice(take);
+                var framesToWrite = take / bytesPerFrame;
+
+                if (framesToWrite <= 0)
+                {
+                    break;
+                }
+
+                var written = snd_pcm_writei(pcm, tmp, framesToWrite);
+
+                if (written < 0)
+                {
+                    snd_pcm_prepare(pcm);
+                }
+            }
+
+            ct.ThrowIfCancellationRequested();
             snd_pcm_drain(pcm);
+        }
+        catch (OperationCanceledException)
+        {
+            snd_pcm_drop(pcm);
+
+            throw;
         }
         finally
         {
@@ -89,7 +134,13 @@ public sealed class LinuxSoundPlayer : ISoundPlayer
     private const int SND_PCM_ACCESS_RW_INTERLEAVED = 3;
 
     [DllImport("libasound.so")]
+    private static extern int snd_pcm_prepare(nint pcm);
+
+    [DllImport("libasound.so")]
     private static extern int snd_pcm_open(out nint pcm, string name, int stream, int mode);
+
+    [DllImport("libasound.so")]
+    private static extern int snd_pcm_drop(nint pcm);
 
     [DllImport("libasound.so")]
     private static extern int snd_pcm_set_params(
