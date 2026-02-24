@@ -7,7 +7,11 @@ namespace Gaia.Services;
 
 public interface ISoundPlayer
 {
-    ConfiguredValueTaskAwaitable PlayAsync(ReadOnlyMemory<byte> soundData, CancellationToken ct);
+    ConfiguredValueTaskAwaitable PlayAsync(
+        ReadOnlyMemory<byte> soundData,
+        bool isLooping,
+        CancellationToken ct
+    );
 }
 
 public sealed class SoundPlayer : ISoundPlayer
@@ -24,10 +28,11 @@ public sealed class SoundPlayer : ISoundPlayer
 
     public ConfiguredValueTaskAwaitable PlayAsync(
         ReadOnlyMemory<byte> soundData,
+        bool isLooping,
         CancellationToken ct
     )
     {
-        return _soundPlayer.PlayAsync(soundData, ct);
+        return _soundPlayer.PlayAsync(soundData, isLooping, ct);
     }
 
     private readonly ISoundPlayer _soundPlayer;
@@ -37,6 +42,7 @@ public sealed class EmptySoundPlayer : ISoundPlayer
 {
     public ConfiguredValueTaskAwaitable PlayAsync(
         ReadOnlyMemory<byte> soundData,
+        bool isLooping,
         CancellationToken ct
     )
     {
@@ -48,6 +54,7 @@ public sealed class LinuxSoundPlayer : ISoundPlayer
 {
     public ConfiguredValueTaskAwaitable PlayAsync(
         ReadOnlyMemory<byte> soundData,
+        bool isLooping,
         CancellationToken ct
     )
     {
@@ -70,50 +77,53 @@ public sealed class LinuxSoundPlayer : ISoundPlayer
 
         try
         {
-            if (
-                snd_pcm_set_params(
-                    pcm,
-                    SND_PCM_FORMAT_S16_LE,
-                    SND_PCM_ACCESS_RW_INTERLEAVED,
-                    2,
-                    44100,
-                    1,
-                    500000
-                ) < 0
-            )
+            do
             {
-                throw new("Failed to set PCM parameters.");
-            }
+                if (
+                    snd_pcm_set_params(
+                        pcm,
+                        SND_PCM_FORMAT_S16_LE,
+                        SND_PCM_ACCESS_RW_INTERLEAVED,
+                        2,
+                        44100,
+                        1,
+                        500000
+                    ) < 0
+                )
+                {
+                    throw new("Failed to set PCM parameters.");
+                }
 
-            const int bytesPerFrame = 4;
-            const int chunkFrames = 2048;
-            var chunkBytes = chunkFrames * bytesPerFrame;
-            var tmp = new byte[chunkBytes];
-            var remaining = soundData;
+                const int bytesPerFrame = 4;
+                const int chunkFrames = 2048;
+                var chunkBytes = chunkFrames * bytesPerFrame;
+                var tmp = new byte[chunkBytes];
+                var remaining = soundData;
 
-            while (remaining.Length > 0)
-            {
+                while (remaining.Length > 0)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var take = Math.Min(tmp.Length, remaining.Length);
+                    remaining.Span.Slice(0, take).CopyTo(tmp);
+                    remaining = remaining.Slice(take);
+                    var framesToWrite = take / bytesPerFrame;
+
+                    if (framesToWrite <= 0)
+                    {
+                        break;
+                    }
+
+                    var written = snd_pcm_writei(pcm, tmp, framesToWrite);
+
+                    if (written < 0)
+                    {
+                        snd_pcm_prepare(pcm);
+                    }
+                }
+
                 ct.ThrowIfCancellationRequested();
-                var take = Math.Min(tmp.Length, remaining.Length);
-                remaining.Span.Slice(0, take).CopyTo(tmp);
-                remaining = remaining.Slice(take);
-                var framesToWrite = take / bytesPerFrame;
-
-                if (framesToWrite <= 0)
-                {
-                    break;
-                }
-
-                var written = snd_pcm_writei(pcm, tmp, framesToWrite);
-
-                if (written < 0)
-                {
-                    snd_pcm_prepare(pcm);
-                }
-            }
-
-            ct.ThrowIfCancellationRequested();
-            snd_pcm_drain(pcm);
+                snd_pcm_drain(pcm);
+            } while (isLooping);
         }
         catch (OperationCanceledException)
         {
@@ -180,30 +190,38 @@ public class WindowsSoundPlayer : ISoundPlayer
 
     public ConfiguredValueTaskAwaitable PlayAsync(
         ReadOnlyMemory<byte> soundData,
+        bool isLooping,
         CancellationToken ct
     )
     {
-        return PlayCore(soundData, ct).ConfigureAwait(false);
+        return PlayCore(soundData, isLooping, ct).ConfigureAwait(false);
     }
 
-    private async ValueTask PlayCore(ReadOnlyMemory<byte> soundData, CancellationToken ct)
+    private async ValueTask PlayCore(
+        ReadOnlyMemory<byte> soundData,
+        bool isLooping,
+        CancellationToken ct
+    )
     {
-        using var options = new WaveHeaderOptions(soundData.Span);
-        var result = waveOutWrite(
-            options.HWaveOut,
-            options.Header.Handle,
-            (uint)Marshal.SizeOf(options.Header.Value)
-        );
-
-        if (result != MMSYSERR_NOERROR)
+        do
         {
-            throw new("Failed to write waveform audio data.");
-        }
+            using var options = new WaveHeaderOptions(soundData.Span);
+            var result = waveOutWrite(
+                options.HWaveOut,
+                options.Header.Handle,
+                (uint)Marshal.SizeOf(options.Header.Value)
+            );
 
-        while ((options.Header.Value.dwFlags & WHDR_DONE) != WHDR_DONE)
-        {
-            await Task.Delay(100, ct);
-        }
+            if (result != MMSYSERR_NOERROR)
+            {
+                throw new("Failed to write waveform audio data.");
+            }
+
+            while ((options.Header.Value.dwFlags & WHDR_DONE) != WHDR_DONE)
+            {
+                await Task.Delay(100, ct);
+            }
+        } while (isLooping);
     }
 
     [DllImport("winmm.dll", SetLastError = true)]
