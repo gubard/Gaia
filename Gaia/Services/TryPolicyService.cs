@@ -25,9 +25,9 @@ public sealed class TryPolicyService : ITryPolicyService
         where T : IValidationErrors, new()
     {
         var count = 0;
-        var exceptions = new List<Exception>();
+        var exceptions = new Exception[_tryCount];
 
-        while (count++ < _tryCount)
+        while (count < _tryCount)
         {
             try
             {
@@ -37,15 +37,16 @@ public sealed class TryPolicyService : ITryPolicyService
             }
             catch (Exception exception)
             {
-                exceptions.Add(exception);
+                exceptions[count] = exception;
                 _onError?.Invoke(exception);
                 Thread.Sleep(_delay);
             }
+
+            count++;
         }
 
         var result = new T();
-        var exceptionsArray = exceptions.ToArray();
-        result.ValidationErrors.Add(new ExceptionsValidationError(exceptionsArray));
+        result.ValidationErrors.Add(new ExceptionsValidationError(exceptions));
 
         return result;
     }
@@ -64,9 +65,9 @@ public sealed class TryPolicyService : ITryPolicyService
         where T : IValidationErrors, new()
     {
         var count = 0;
-        var exceptions = new List<Exception>();
+        var exceptions = new Exception[_tryCount];
 
-        while (count++ < _tryCount)
+        while (count < _tryCount)
         {
             try
             {
@@ -76,15 +77,16 @@ public sealed class TryPolicyService : ITryPolicyService
             }
             catch (Exception exception)
             {
-                exceptions.Add(exception);
+                exceptions[count] = exception;
                 _onError?.Invoke(exception);
                 await Task.Delay(_delay);
             }
+
+            count++;
         }
 
         var result = new T();
-        var exceptionsArray = exceptions.ToArray();
-        result.ValidationErrors.Add(new ExceptionsValidationError(exceptionsArray));
+        result.ValidationErrors.Add(new ExceptionsValidationError(exceptions));
 
         return result;
     }

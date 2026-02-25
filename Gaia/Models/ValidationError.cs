@@ -34,4 +34,9 @@ public sealed class ExceptionsValidationError : ValidationError
     }
 
     public IReadOnlyList<Exception> Exceptions { get; }
+
+    public override string ToString()
+    {
+        return string.Join(", ", Exceptions.Select(x => x.Message));
+    }
 }
