@@ -47,7 +47,7 @@ public sealed class TryPolicyService : ITryPolicyService
             }
             catch (Exception exception)
             {
-                _logger.TryException(count, exception);
+                _logger.TryException(count + 1, exception);
                 exceptions[count] = exception;
                 _onError.Invoke(exception);
                 Thread.Sleep(_delay);
@@ -92,7 +92,7 @@ public sealed class TryPolicyService : ITryPolicyService
             }
             catch (Exception exception)
             {
-                _logger.TryException(count, exception);
+                _logger.TryException(count + 1, exception);
                 exceptions[count] = exception;
                 _onError.Invoke(exception);
                 await Task.Delay(_delay);
