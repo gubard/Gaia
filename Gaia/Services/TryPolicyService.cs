@@ -45,6 +45,10 @@ public sealed class TryPolicyService : ITryPolicyService
 
                 return value;
             }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
             catch (Exception exception)
             {
                 _logger.TryException(count + 1, exception);
@@ -89,6 +93,10 @@ public sealed class TryPolicyService : ITryPolicyService
                 var value = await func();
 
                 return value;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception exception)
             {
