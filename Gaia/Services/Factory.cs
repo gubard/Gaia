@@ -18,6 +18,21 @@ public interface IFactory<out TOutput>
     TOutput Create();
 }
 
+public sealed class FuncFactory<TOutput> : IFactory<TOutput>
+{
+    public FuncFactory(Func<TOutput> func)
+    {
+        _func = func;
+    }
+
+    public TOutput Create()
+    {
+        return _func.Invoke();
+    }
+
+    private readonly Func<TOutput> _func;
+}
+
 public sealed class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
 {
     public static readonly EmptyHeadersFactory Instance = new();

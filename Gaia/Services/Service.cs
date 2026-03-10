@@ -57,13 +57,13 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
     }
 
     protected HttpService(
-        HttpClient httpClient,
+        IFactory<HttpClient> httpClientFactory,
         JsonSerializerOptions options,
         ITryPolicyService tryPolicyService,
         IFactory<Memory<HttpHeader>> headersFactory
     )
     {
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
         _options = options;
         _tryPolicyService = tryPolicyService;
         _headersFactory = headersFactory;
@@ -71,7 +71,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
 
     protected abstract TGetRequest CreateHealthCheckGetRequest();
 
-    private readonly HttpClient _httpClient;
+    private readonly IFactory<HttpClient> _httpClientFactory;
     private readonly JsonSerializerOptions _options;
     private readonly ITryPolicyService _tryPolicyService;
     private readonly IFactory<Memory<HttpHeader>> _headersFactory;
@@ -85,9 +85,10 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
 
     private async ValueTask<TGetResponse> GetRequestAsync(TGetRequest request, CancellationToken ct)
     {
+        using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        using var httpResponse = await _httpClient
+        using var httpResponse = await client
             .SetHeaders(headers.Span)
             .PostAsJsonAsync(RouteHelper.Get, request, _options, ct);
 
@@ -111,9 +112,10 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         CancellationToken ct
     )
     {
+        using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        using var httpResponse = await _httpClient
+        using var httpResponse = await client
             .SetHeaders(headers.Span)
             .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
             .PostAsJsonAsync(RouteHelper.Post, request, _options, ct);
