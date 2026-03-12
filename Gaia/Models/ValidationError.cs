@@ -10,6 +10,11 @@ public sealed class ConnectionValidationError : ValidationError
     }
 
     public string Resurce { get; }
+
+    public override string ToString()
+    {
+        return $"Can't connect to \"{Resurce}\"";
+    }
 }
 
 public sealed class UnauthorizedValidationError : ValidationError
