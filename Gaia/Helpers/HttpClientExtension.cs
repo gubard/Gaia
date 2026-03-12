@@ -9,6 +9,32 @@ public static class HttpClientExtension
 {
     extension(HttpClient httpClient)
     {
+        public async ValueTask<(
+            HttpResponseMessage? response,
+            ValidationError[] errors
+        )> TryPostAsJsonAsync<TValue>(
+            [StringSyntax(StringSyntaxAttribute.Uri)] string requestUri,
+            TValue value,
+            JsonSerializerOptions options,
+            CancellationToken cancellationToken
+        )
+        {
+            try
+            {
+                return (
+                    await httpClient.PostAsJsonAsync(requestUri, value, options, cancellationToken),
+                    []
+                );
+            }
+            catch
+            {
+                return (
+                    null,
+                    [new ConnectionValidationError($"{httpClient.BaseAddress}{requestUri}")]
+                );
+            }
+        }
+
         public HttpClient SetHeaders(ReadOnlySpan<HttpHeader> headers)
         {
             httpClient.DefaultRequestHeaders.Clear();

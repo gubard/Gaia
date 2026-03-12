@@ -2,6 +2,24 @@ namespace Gaia.Models;
 
 public abstract class ValidationError;
 
+public sealed class ConnectionValidationError : ValidationError
+{
+    public ConnectionValidationError(string resurce)
+    {
+        Resurce = resurce;
+    }
+
+    public string Resurce { get; }
+}
+
+public sealed class UnauthorizedValidationError : ValidationError
+{
+    public override string ToString()
+    {
+        return "App unauthorized";
+    }
+}
+
 public sealed class FixedSizeValidationError : ValidationError
 {
     public FixedSizeValidationError(uint fixedSize, uint actualSize)

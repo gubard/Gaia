@@ -88,9 +88,19 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        using var httpResponse = await client
+        var (hrm, errors) = await client
             .SetHeaders(headers.Span)
-            .PostAsJsonAsync(RouteHelper.Get, request, _options, ct);
+            .TryPostAsJsonAsync(RouteHelper.Get, request, _options, ct);
+
+        if (hrm is null)
+        {
+            var result = new TGetResponse();
+            result.ValidationErrors.AddRange(errors);
+
+            return result;
+        }
+
+        using var httpResponse = hrm;
 
         if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -115,10 +125,20 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        using var httpResponse = await client
+        var (hrm, errors) = await client
             .SetHeaders(headers.Span)
             .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
-            .PostAsJsonAsync(RouteHelper.Post, request, _options, ct);
+            .TryPostAsJsonAsync(RouteHelper.Post, request, _options, ct);
+
+        if (hrm is null)
+        {
+            var result = new TPostResponse();
+            result.ValidationErrors.AddRange(errors);
+
+            return result;
+        }
+
+        using var httpResponse = hrm;
 
         if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
