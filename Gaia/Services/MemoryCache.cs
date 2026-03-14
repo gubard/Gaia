@@ -7,7 +7,7 @@ public interface IMemoryCache<in TPostRequest, in TGetResponse>
 
 public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
     : IMemoryCache<TPostRequest, TGetResponse>
-    where TItem : IStaticFactory<Guid, TItem>
+    where TItem : IStaticServiceFactory<Guid, TItem>
 {
     public abstract ConfiguredValueTaskAwaitable UpdateAsync(
         TPostRequest source,
@@ -21,6 +21,11 @@ public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
 
     protected readonly Dictionary<Guid, TItem> Items = new();
 
+    protected MemoryCache(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+
     protected TItem GetItem(Guid id)
     {
         if (Items.TryGetValue(id, out var value))
@@ -28,7 +33,7 @@ public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
             return value;
         }
 
-        var result = TItem.Create(id);
+        var result = TItem.Create(id, _serviceProvider);
 
         if (Items.TryAdd(id, result))
         {
@@ -37,4 +42,6 @@ public abstract class MemoryCache<TItem, TPostRequest, TGetResponse>
 
         return Items[id];
     }
+
+    private readonly IServiceProvider _serviceProvider;
 }
