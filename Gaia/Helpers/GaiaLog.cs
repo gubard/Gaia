@@ -12,4 +12,18 @@ public static partial class GaiaLog
         this ILogger logger,
         OperationCanceledException exception
     );
+
+    [LoggerMessage(
+        EventId = 3,
+        Level = LogLevel.Information,
+        Message = "Initialized application directory: {AppDirectory}"
+    )]
+    public static partial void InitAppDirectory(this ILogger logger, DirectoryInfo appDirectory);
+
+    [LoggerMessage(
+        EventId = 4,
+        Level = LogLevel.Information,
+        Message = "Initialized database directory: {DbDirectory}"
+    )]
+    public static partial void InitDbDirectory(this ILogger logger, DirectoryInfo dbDirectory);
 }

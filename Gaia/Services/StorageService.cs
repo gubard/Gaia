@@ -1,5 +1,6 @@
 ﻿using Gaia.Helpers;
 using Gaia.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Gaia.Services;
 
@@ -14,7 +15,7 @@ public sealed class StorageService : IStorageService
     private readonly DirectoryInfo _appDirectory;
     private readonly DirectoryInfo _dbDirectory;
 
-    public StorageService(string appName)
+    public StorageService(string appName, ILogger logger)
     {
 #if DEBUG
         _appDirectory = CreateAppDirectory(appName).Combine("Debug");
@@ -32,6 +33,9 @@ public sealed class StorageService : IStorageService
         {
             _dbDirectory.Create();
         }
+
+        logger.InitAppDirectory(_appDirectory);
+        logger.InitDbDirectory(_dbDirectory);
     }
 
     public DirectoryInfo GetAppDirectory()
