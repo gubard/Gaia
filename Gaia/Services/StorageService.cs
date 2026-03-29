@@ -15,7 +15,7 @@ public sealed class StorageService : IStorageService
     private readonly DirectoryInfo _appDirectory;
     private readonly DirectoryInfo _dbDirectory;
 
-    public StorageService(string appName, ILogger logger)
+    public StorageService(string appName, ILogger<StorageService> logger)
     {
 #if DEBUG
         _appDirectory = CreateAppDirectory(appName).Combine("Debug");
