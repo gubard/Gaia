@@ -9,8 +9,6 @@ public interface IHashService<in TInput, out TOutput>
 
 public sealed class Sha512HashService : IHashService<byte[], byte[]>, IDisposable
 {
-    private readonly SHA512 _sha512;
-
     public Sha512HashService(SHA512 sha512)
     {
         _sha512 = sha512;
@@ -25,6 +23,8 @@ public sealed class Sha512HashService : IHashService<byte[], byte[]>, IDisposabl
     {
         _sha512.Dispose();
     }
+
+    private readonly SHA512 _sha512;
 }
 
 public sealed class StringHashService : IHashService<string, string>
@@ -51,4 +51,25 @@ public sealed class StringHashService : IHashService<string, string>
 
         return _bytesToStringTransformer.Transform(hash);
     }
+}
+
+public sealed class BytesToStringHashService : IHashService<byte[], string>
+{
+    public BytesToStringHashService(
+        ITransformer<byte[], string> bytesToStringTransformer,
+        IHashService<byte[], byte[]> bytesHashService
+    )
+    {
+        _bytesToStringTransformer = bytesToStringTransformer;
+        _bytesHashService = bytesHashService;
+    }
+
+    public string ComputeHash(byte[] input)
+    {
+        var bytes = _bytesHashService.ComputeHash(input);
+        return _bytesToStringTransformer.Transform(bytes);
+    }
+
+    private readonly IHashService<byte[], byte[]> _bytesHashService;
+    private readonly ITransformer<byte[], string> _bytesToStringTransformer;
 }

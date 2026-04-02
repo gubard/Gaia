@@ -35,3 +35,11 @@ public sealed class BytesToHex : ITransformer<byte[], string>
         return Convert.ToHexString(input);
     }
 }
+
+public sealed class BytesToBase64 : ITransformer<byte[], string>
+{
+    public string Transform(byte[] input)
+    {
+        return Convert.ToBase64String(input);
+    }
+}

@@ -6,7 +6,7 @@ public sealed class AutoDictionary<TKey, TItem>
     where TItem : IStaticFactory<TKey, TItem>, IId<TKey>
     where TKey : notnull
 {
-    private readonly Dictionary<TKey, TItem> _items = new();
+    public int Count => _items.Count;
 
     public TItem GetItem(TKey id)
     {
@@ -37,4 +37,6 @@ public sealed class AutoDictionary<TKey, TItem>
     {
         return _items.Values.ToArray();
     }
+
+    private readonly Dictionary<TKey, TItem> _items = new();
 }
