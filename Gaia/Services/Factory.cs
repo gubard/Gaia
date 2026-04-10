@@ -50,8 +50,6 @@ public sealed class EmptyHeadersFactory : IFactory<Memory<HttpHeader>>
 
 public sealed class HashServiceFactory : IFactory<string, IHashService<string, string>>
 {
-    private readonly FrozenDictionary<string, IHashService<string, string>> _hashServices;
-
     public HashServiceFactory(FrozenDictionary<string, IHashService<string, string>> hashServices)
     {
         _hashServices = hashServices;
@@ -61,4 +59,6 @@ public sealed class HashServiceFactory : IFactory<string, IHashService<string, s
     {
         return _hashServices[input];
     }
+
+    private readonly FrozenDictionary<string, IHashService<string, string>> _hashServices;
 }

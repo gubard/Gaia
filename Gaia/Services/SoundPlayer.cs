@@ -183,11 +183,6 @@ public class WindowsSoundPlayer : ISoundPlayer
         nint dwParam2
     );
 
-    private const int MMSYSERR_NOERROR = 0;
-    private const int CALLBACK_NULL = 0;
-    private const int WAVE_FORMAT_PCM = 1;
-    private const int WHDR_DONE = 0x00000001;
-
     public ConfiguredValueTaskAwaitable PlayAsync(
         ReadOnlyMemory<byte> soundData,
         bool isLooping,
@@ -195,33 +190,6 @@ public class WindowsSoundPlayer : ISoundPlayer
     )
     {
         return PlayCore(soundData, isLooping, ct).ConfigureAwait(false);
-    }
-
-    private async ValueTask PlayCore(
-        ReadOnlyMemory<byte> soundData,
-        bool isLooping,
-        CancellationToken ct
-    )
-    {
-        do
-        {
-            using var options = new WaveHeaderOptions(soundData.Span);
-            var result = waveOutWrite(
-                options.HWaveOut,
-                options.Header.Handle,
-                (uint)Marshal.SizeOf(options.Header.Value)
-            );
-
-            if (result != MMSYSERR_NOERROR)
-            {
-                throw new("Failed to write waveform audio data.");
-            }
-
-            while ((options.Header.Value.dwFlags & WHDR_DONE) != WHDR_DONE)
-            {
-                await Task.Delay(100, ct);
-            }
-        } while (isLooping);
     }
 
     [DllImport("winmm.dll", SetLastError = true)]
@@ -268,10 +236,40 @@ public class WindowsSoundPlayer : ISoundPlayer
         public ushort cbSize;
     }
 
+    private const int MMSYSERR_NOERROR = 0;
+    private const int CALLBACK_NULL = 0;
+    private const int WAVE_FORMAT_PCM = 1;
+    private const int WHDR_DONE = 0x00000001;
+
+    private async ValueTask PlayCore(
+        ReadOnlyMemory<byte> soundData,
+        bool isLooping,
+        CancellationToken ct
+    )
+    {
+        do
+        {
+            using var options = new WaveHeaderOptions(soundData.Span);
+            var result = waveOutWrite(
+                options.HWaveOut,
+                options.Header.Handle,
+                (uint)Marshal.SizeOf(options.Header.Value)
+            );
+
+            if (result != MMSYSERR_NOERROR)
+            {
+                throw new("Failed to write waveform audio data.");
+            }
+
+            while ((options.Header.Value.dwFlags & WHDR_DONE) != WHDR_DONE)
+            {
+                await Task.Delay(100, ct);
+            }
+        } while (isLooping);
+    }
+
     private struct WaveHeaderOptions : IDisposable
     {
-        private GCHandle handle;
-
         public WaveHeaderOptions(ReadOnlySpan<byte> soundData)
         {
             var waveFormat = new WaveFormatEx
@@ -342,5 +340,7 @@ public class WindowsSoundPlayer : ISoundPlayer
                 throw new("Failed to close waveform.");
             }
         }
+
+        private GCHandle handle;
     }
 }

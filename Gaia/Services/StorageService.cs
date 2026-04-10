@@ -12,9 +12,6 @@ public interface IStorageService
 
 public sealed class StorageService : IStorageService
 {
-    private readonly DirectoryInfo _appDirectory;
-    private readonly DirectoryInfo _dbDirectory;
-
     public StorageService(string appName, ILogger<StorageService> logger)
     {
 #if DEBUG
@@ -47,6 +44,9 @@ public sealed class StorageService : IStorageService
     {
         return _dbDirectory;
     }
+
+    private readonly DirectoryInfo _appDirectory;
+    private readonly DirectoryInfo _dbDirectory;
 
     private DirectoryInfo CreateDbDirectory(string appName)
     {

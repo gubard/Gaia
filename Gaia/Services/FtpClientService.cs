@@ -79,7 +79,23 @@ public sealed class FtpClientService : IFtpClientService
         return GetItemCore(path, ct).ConfigureAwait(false);
     }
 
-    public static ReadOnlyMemory<string> Months = new[]
+    public void Dispose()
+    {
+        _tcpClient.Dispose();
+        _stream.Dispose();
+        _streamWriter.Dispose();
+        _streamReader.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _tcpClient.Dispose();
+        await _stream.DisposeAsync();
+        await _streamWriter.DisposeAsync();
+        _streamReader.Dispose();
+    }
+
+    private static readonly ReadOnlyMemory<string> Months = new[]
     {
         "Jan",
         "Feb",
@@ -354,21 +370,5 @@ public sealed class FtpClientService : IFtpClientService
         }
 
         throw new ExpectedFtpStatusCodeException(strSpan, statusCode);
-    }
-
-    public void Dispose()
-    {
-        _tcpClient.Dispose();
-        _stream.Dispose();
-        _streamWriter.Dispose();
-        _streamReader.Dispose();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        _tcpClient.Dispose();
-        await _stream.DisposeAsync();
-        await _streamWriter.DisposeAsync();
-        _streamReader.Dispose();
     }
 }

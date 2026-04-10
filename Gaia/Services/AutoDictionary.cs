@@ -17,12 +17,7 @@ public sealed class AutoDictionary<TKey, TItem>
 
         var result = TItem.Create(id);
 
-        if (_items.TryAdd(id, result))
-        {
-            return result;
-        }
-
-        return _items[id];
+        return _items.TryAdd(id, result) ? result : _items[id];
     }
 
     public void AddRange(IEnumerable<TItem> items)
