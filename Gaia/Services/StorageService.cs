@@ -6,27 +6,31 @@ namespace Gaia.Services;
 
 public interface IStorageService
 {
-    DirectoryInfo GetAppDirectory();
+    DirectoryInfo GetAppConfigDirectory();
     DirectoryInfo GetDbDirectory();
+    DirectoryInfo GetAppDictionary();
 }
 
 public sealed class StorageService : IStorageService
 {
-    private readonly DirectoryInfo _appDirectory;
+    private readonly DirectoryInfo _appConfigDirectory;
     private readonly DirectoryInfo _dbDirectory;
+    private readonly DirectoryInfo _appDirectory;
 
     public StorageService(string appName, ILogger<StorageService> logger)
     {
+        _appDirectory = new DirectoryInfo(AppContext.BaseDirectory);
+
 #if DEBUG
-        _appDirectory = CreateAppDirectory(appName).Combine("Debug");
+        _appConfigDirectory = CreateAppDirectory(appName).Combine("Debug");
 #else
         _appDirectory = CreateAppDirectory(appName);
 #endif
         _dbDirectory = CreateDbDirectory(appName);
 
-        if (!_appDirectory.Exists)
+        if (!_appConfigDirectory.Exists)
         {
-            _appDirectory.Create();
+            _appConfigDirectory.Create();
         }
 
         if (!_dbDirectory.Exists)
@@ -34,18 +38,23 @@ public sealed class StorageService : IStorageService
             _dbDirectory.Create();
         }
 
-        logger.InitAppDirectory(_appDirectory);
+        logger.InitAppDirectory(_appConfigDirectory);
         logger.InitDbDirectory(_dbDirectory);
     }
 
-    public DirectoryInfo GetAppDirectory()
+    public DirectoryInfo GetAppConfigDirectory()
     {
-        return _appDirectory;
+        return _appConfigDirectory;
     }
 
     public DirectoryInfo GetDbDirectory()
     {
         return _dbDirectory;
+    }
+
+    public DirectoryInfo GetAppDictionary()
+    {
+        return _appDirectory;
     }
 
     private DirectoryInfo CreateDbDirectory(string appName)

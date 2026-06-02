@@ -4,6 +4,21 @@ namespace Gaia.Helpers;
 
 public static class StringExtension
 {
+    public static string GetLengthWithSpace(this string str, ushort length)
+    {
+        if (str.IsNullOrWhiteSpace())
+        {
+            return new string(' ', length);
+        }
+
+        if (str.Length >= length)
+        {
+            return $"{str} ";
+        }
+
+        return $"{str}{new string(' ', length - str.Length)}";
+    }
+
     public static Guid ToGuid(this string id)
     {
         return Guid.Parse(id);
