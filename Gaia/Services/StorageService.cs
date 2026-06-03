@@ -24,7 +24,7 @@ public sealed class StorageService : IStorageService
 #if DEBUG
         _appConfigDirectory = CreateAppDirectory(appName).Combine("Debug");
 #else
-        _appDirectory = CreateAppDirectory(appName);
+        _appConfigDirectory = CreateAppDirectory(appName);
 #endif
         _dbDirectory = CreateDbDirectory(appName);
 
