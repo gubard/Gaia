@@ -42,7 +42,14 @@ public static class EnumerableExtension
         }
     }
 
-    public static async ValueTask<IEnumerable<T>> ToEnumerableAsync<T>(
+    public static ConfiguredValueTaskAwaitable<IEnumerable<T>> ToEnumerableAsync<T>(
+        this ConfiguredCancelableAsyncEnumerable<T> enumerable
+    )
+    {
+        return ToEnumerableCore(enumerable).ConfigureAwait(false);
+    }
+
+    private static async ValueTask<IEnumerable<T>> ToEnumerableCore<T>(
         this ConfiguredCancelableAsyncEnumerable<T> enumerable
     )
     {
