@@ -16,4 +16,22 @@ public static class StringBuilderExtension
             builder.Append(str);
         }
     }
+
+    public static string ToTitle(this string str)
+    {
+        if (str.IsNullOrWhiteSpace())
+        {
+            return str;
+        }
+
+        return string.Create(
+            str.Length,
+            str,
+            (span, state) =>
+            {
+                span[0] = char.ToUpperInvariant(state[0]);
+                state.AsSpan(1).ToLowerInvariant(span.Slice(1));
+            }
+        );
+    }
 }
