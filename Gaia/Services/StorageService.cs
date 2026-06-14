@@ -22,9 +22,9 @@ public sealed class StorageService : IStorageService
         _appDirectory = new DirectoryInfo(AppContext.BaseDirectory);
 
 #if DEBUG
-        _appConfigDirectory = CreateAppDirectory(appName).Combine("Debug");
+        _appConfigDirectory = CreateAppConfigDirectory(appName).Combine("Debug");
 #else
-        _appConfigDirectory = CreateAppDirectory(appName);
+        _appConfigDirectory = CreateAppConfigDirectory(appName);
 #endif
         _dbDirectory = CreateDbDirectory(appName);
 
@@ -38,8 +38,9 @@ public sealed class StorageService : IStorageService
             _dbDirectory.Create();
         }
 
-        logger.InitAppDirectory(_appConfigDirectory);
+        logger.InitAppDirectory(_appDirectory);
         logger.InitDbDirectory(_dbDirectory);
+        logger.InitConfigDirectory(_appConfigDirectory);
     }
 
     public DirectoryInfo GetAppConfigDirectory()
@@ -86,7 +87,7 @@ public sealed class StorageService : IStorageService
         };
     }
 
-    private DirectoryInfo CreateAppDirectory(string appName)
+    private DirectoryInfo CreateAppConfigDirectory(string appName)
     {
         switch (OsHelper.OsType)
         {

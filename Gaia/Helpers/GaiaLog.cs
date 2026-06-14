@@ -26,4 +26,11 @@ public static partial class GaiaLog
         Message = "Initialized database directory: {DbDirectory}"
     )]
     public static partial void InitDbDirectory(this ILogger logger, DirectoryInfo dbDirectory);
+
+    [LoggerMessage(
+        EventId = 5,
+        Level = LogLevel.Information,
+        Message = "Initialized config directory: {DbDirectory}"
+    )]
+    public static partial void InitConfigDirectory(this ILogger logger, DirectoryInfo dbDirectory);
 }
