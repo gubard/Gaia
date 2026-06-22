@@ -7,9 +7,9 @@ public interface IValidationErrors
     List<ValidationError> ValidationErrors { get; }
 }
 
-public sealed class EmptyValidationError : IValidationErrors
+public sealed class EmptyValidationErrors : IValidationErrors
 {
-    public static IValidationErrors Instance = new EmptyValidationError();
+    public static IValidationErrors Instance = new EmptyValidationErrors();
 
     public List<ValidationError> ValidationErrors => new();
 }
