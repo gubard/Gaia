@@ -4,6 +4,55 @@ namespace Gaia.Helpers;
 
 public static class StringExtension
 {
+    public static string RemoveDuplicateSpaces(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        var span = input.AsSpan();
+        var finalLength = 0;
+        var lastWasSpace = false;
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            var isSpace = span[i] == ' ';
+
+            if (!isSpace || !lastWasSpace)
+            {
+                finalLength++;
+            }
+
+            lastWasSpace = isSpace;
+        }
+
+        if (finalLength == span.Length)
+        {
+            return input;
+        }
+
+        return string.Create(
+            finalLength,
+            input,
+            (dest, src) =>
+            {
+                var destIndex = 0;
+                var innerLastWasSpace = false;
+
+                for (var i = 0; i < src.Length; i++)
+                {
+                    var isSpace = src[i] == ' ';
+                    if (!isSpace || !innerLastWasSpace)
+                    {
+                        dest[destIndex++] = src[i];
+                    }
+                    innerLastWasSpace = isSpace;
+                }
+            }
+        );
+    }
+
     public static string GetLengthWithSpace(this string str, ushort length)
     {
         if (str.IsNullOrWhiteSpace())
