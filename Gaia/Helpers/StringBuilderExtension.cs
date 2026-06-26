@@ -30,7 +30,7 @@ public static class StringBuilderExtension
             (span, state) =>
             {
                 span[0] = char.ToUpperInvariant(state[0]);
-                state.AsSpan(1).ToLowerInvariant(span.Slice(1));
+                state.AsSpan(1).CopyTo(span.Slice(1));
             }
         );
     }
