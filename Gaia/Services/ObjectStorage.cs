@@ -80,8 +80,20 @@ public sealed class FileObjectStorage : IObjectStorage
         }
 
         await using var stream = file.OpenRead();
-        var value = await _serializer.DeserializeAsync<T>(stream, ct);
+        var value = await SafeDeserializeAsync<T>(stream, ct);
 
         return value ?? T.Create();
+    }
+
+    private async ValueTask<T?> SafeDeserializeAsync<T>(Stream stream, CancellationToken ct)
+    {
+        try
+        {
+            return await _serializer.DeserializeAsync<T>(stream, ct);
+        }
+        catch
+        {
+            return default;
+        }
     }
 }
