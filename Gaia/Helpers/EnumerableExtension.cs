@@ -46,7 +46,7 @@ public static class EnumerableExtension
         this ConfiguredCancelableAsyncEnumerable<T> enumerable
     )
     {
-        return ToEnumerableCore(enumerable).ConfigureAwait(false);
+        return enumerable.ToEnumerableCore().ConfigureAwait(false);
     }
 
     private static async ValueTask<IEnumerable<T>> ToEnumerableCore<T>(
@@ -67,7 +67,7 @@ public static class EnumerableExtension
         this ConfiguredCancelableAsyncEnumerable<T> enumerable
     )
     {
-        return ToArrayCore(enumerable).ConfigureAwait(false);
+        return enumerable.ToArrayCore().ConfigureAwait(false);
     }
 
     private static async ValueTask<T[]> ToArrayCore<T>(

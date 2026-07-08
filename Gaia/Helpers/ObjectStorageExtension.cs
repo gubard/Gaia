@@ -9,7 +9,7 @@ public static class ObjectStorageExtension
         this IObjectStorage storage,
         CancellationToken ct
     )
-        where T : IObjectStorageValue, new()
+        where T : IObjectStorageValue, IStaticFactory<T>
     {
         return storage.LoadAsync<T>(T.GetObjectStorageKey(), ct);
     }
@@ -19,7 +19,7 @@ public static class ObjectStorageExtension
         Guid id,
         CancellationToken ct
     )
-        where T : IObjectStorageValue, new()
+        where T : IObjectStorageValue, IStaticFactory<T>
     {
         return storage.LoadAsync<T>(T.GetObjectStorageKey(id), ct);
     }

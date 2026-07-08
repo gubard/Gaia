@@ -6,7 +6,7 @@ namespace Gaia.Services;
 public interface IObjectStorage
 {
     ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
-        where T : new();
+        where T : IStaticFactory<T>;
 
     ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct);
 }
@@ -16,14 +16,14 @@ public sealed class MemoryObjectStorage : IObjectStorage
     private readonly Dictionary<string, object> _storage = new();
 
     public ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
-        where T : new()
+        where T : IStaticFactory<T>
     {
         if (_storage.TryGetValue(key, out var value))
         {
             return TaskHelper.FromResult((T)value);
         }
 
-        return TaskHelper.FromResult(new T());
+        return TaskHelper.FromResult(T.Create());
     }
 
     public ConfiguredValueTaskAwaitable SaveAsync(string key, object obj, CancellationToken ct)
@@ -43,7 +43,7 @@ public sealed class FileObjectStorage : IObjectStorage
     }
 
     public ConfiguredValueTaskAwaitable<T> LoadAsync<T>(string key, CancellationToken ct)
-        where T : new()
+        where T : IStaticFactory<T>
     {
         return LoadCore<T>(key, ct).ConfigureAwait(false);
     }
@@ -70,18 +70,18 @@ public sealed class FileObjectStorage : IObjectStorage
     }
 
     private async ValueTask<T> LoadCore<T>(string key, CancellationToken ct)
-        where T : new()
+        where T : IStaticFactory<T>
     {
         var file = _directory.ToFile($"{key}.{_serializer.FileExtension}");
 
         if (!file.Exists)
         {
-            return new();
+            return T.Create();
         }
 
         await using var stream = file.OpenRead();
         var value = await _serializer.DeserializeAsync<T>(stream, ct);
 
-        return value ?? new();
+        return value ?? T.Create();
     }
 }
