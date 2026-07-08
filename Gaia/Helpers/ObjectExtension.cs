@@ -4,6 +4,13 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static T[] SetItem<T>(this T[] array, int index, T value)
+    {
+        array[index] = value;
+
+        return array;
+    }
+
     public static int Sum<T>(this ReadOnlySpan<T> span, Func<T, int> selector)
     {
         var sum = 0;
