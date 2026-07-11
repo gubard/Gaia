@@ -57,15 +57,15 @@ public static class StringExtension
     {
         if (str.IsNullOrWhiteSpace())
         {
-            return new string(' ', length);
+            return string.Empty;
         }
 
         if (str.Length >= length)
         {
-            return $"{str} ";
+            return str;
         }
 
-        return $"{str}{new string(' ', length - str.Length)}";
+        return $"{str}{new string(' ', length - str.Length - 1)}";
     }
 
     public static Guid ToGuid(this string id)
