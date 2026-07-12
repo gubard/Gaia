@@ -57,7 +57,7 @@ public static class StringExtension
     {
         if (str.IsNullOrWhiteSpace())
         {
-            return string.Empty;
+            return new string(' ', length);
         }
 
         if (str.Length >= length)
