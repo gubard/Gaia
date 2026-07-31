@@ -14,7 +14,12 @@ public static class DateOnlyExtension
 
     public static DateTime ToDateTime(this DateOnly date, DateTimeKind kind)
     {
-        return new(date.Year, date.Month, date.Day, 0, 0, 0, 0, 0, kind);
+        return date.ToDateTime(TimeOnly.MinValue, kind);
+    }
+
+    public static DateTime ToDateTime(this DateOnly date)
+    {
+        return date.ToDateTime(TimeOnly.MinValue);
     }
 
     public static DateTimeOffset ToDateTimeOffset(this DateOnly date)
