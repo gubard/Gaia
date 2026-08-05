@@ -41,6 +41,10 @@ public sealed class StringFormater : IStringFormater
             {
                 result.Append(parameters[parameterIndex]);
             }
+            else if (int.TryParse(str, out parameterIndex))
+            {
+                result.Append(parameters[parameterIndex]);
+            }
             else
             {
                 result.Append(value ?? parameters[parameterIndex]);

@@ -101,11 +101,11 @@ public sealed class PropertyMinSizeValidationError
     }
 }
 
-public sealed class PropertyNotEqualValidationError
+public sealed class PropertyNotEqualPropertyValidationError
     : PropertyValidationError,
         IObjectPropertyStringValueGetter
 {
-    public PropertyNotEqualValidationError(string propertyName, string secondPropertyName)
+    public PropertyNotEqualPropertyValidationError(string propertyName, string secondPropertyName)
         : base(propertyName)
     {
         SecondPropertyName = secondPropertyName;
@@ -119,6 +119,29 @@ public sealed class PropertyNotEqualValidationError
         {
             nameof(PropertyName) => PropertyName,
             nameof(SecondPropertyName) => SecondPropertyName,
+            _ => null,
+        };
+    }
+}
+
+public sealed class PropertyEqualValueValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
+{
+    public PropertyEqualValueValidationError(string propertyName, object value)
+        : base(propertyName)
+    {
+        Value = value;
+    }
+
+    public object Value { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(PropertyName) => PropertyName,
+            nameof(Value) => Value.ToString(),
             _ => null,
         };
     }
