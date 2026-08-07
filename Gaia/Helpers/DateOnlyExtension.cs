@@ -2,6 +2,13 @@ namespace Gaia.Helpers;
 
 public static class DateOnlyExtension
 {
+    public static DateOnly WithYear(this DateOnly date, int year)
+    {
+        var day = Math.Min(DateTime.DaysInMonth(year, date.Month), date.Day);
+
+        return new DateOnly(year, date.Month, day);
+    }
+
     public static DateOnly WithDay(this DateOnly date, int day)
     {
         return new(date.Year, date.Month, day);
