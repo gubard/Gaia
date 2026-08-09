@@ -4,6 +4,15 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static Memory<T> Concat<T>(this T[] array, ReadOnlyMemory<T> other)
+    {
+        var result = new T[array.Length + other.Length].AsMemory();
+        array.CopyTo(result);
+        other.Span.CopyTo(result.Span.Slice(array.Length));
+
+        return result;
+    }
+
     public static T[] SetItem<T>(this T[] array, int index, T value)
     {
         array[index] = value;
