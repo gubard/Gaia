@@ -1,74 +1,85 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Gaia.Helpers;
 
 public static class StringExtension
 {
-    public static string ReplaceWholeWords(string text, Span<KeyValuePair<string, string>> targets)
+    public static string ConsoleWriteLine(this string str)
     {
-        if (text.IsNullOrEmpty())
+        Console.WriteLine(str);
+
+        return str;
+    }
+
+    public static TEnum ParseEnum<TEnum>(this string str)
+        where TEnum : struct
+    {
+        return Enum.Parse<TEnum>(str);
+    }
+
+    public static string ReplaceWholeWords(this string text, Dictionary<string, string> map)
+    {
+        if (string.IsNullOrEmpty(text) || map.Count == 0)
         {
             return text;
         }
 
         var span = text.AsSpan();
-        var targetSpans = targets.Select(x => x.Key);
-        var indexs = targetSpans.SelectIndexOf(span);
-
-        if (indexs.All(x => x == -1))
-        {
-            return text;
-        }
-
+        var keys = new string[map.Count];
+        map.Keys.CopyTo(keys, 0);
+        var searcher = SearchValues.Create(keys, StringComparison.Ordinal);
         var sb = new StringBuilder(text.Length);
-        var lastIndex = 0;
+        var lastPos = 0;
 
-        while (indexs.All(x => x != -1))
+        while (lastPos < span.Length)
         {
-            for (var i = 0; i < indexs.Length; i++)
+            var matchIndex = span.Slice(lastPos).IndexOfAny(searcher);
+
+            if (matchIndex == -1)
             {
-                var targetSpan = targetSpans[i];
-                var replacement = targets[i].Value.AsSpan();
-                var matchEnd = indexs[i] + targetSpan.Length;
-                var isLeftBoundary = indexs[i] == 0 || !span[indexs[i] - 1].IsWordChar();
+                break;
+            }
+
+            var absoluteMatchIndex = lastPos + matchIndex;
+
+            foreach (var (target, replacement) in map)
+            {
+                if (!span.Slice(absoluteMatchIndex).StartsWith(target.AsSpan()))
+                {
+                    continue;
+                }
+
+                var matchEnd = absoluteMatchIndex + target.Length;
+
+                var isLeftBoundary =
+                    absoluteMatchIndex == 0 || !span[absoluteMatchIndex - 1].IsWordChar();
+
                 var isRightBoundary = matchEnd == span.Length || !span[matchEnd].IsWordChar();
 
                 if (isLeftBoundary && isRightBoundary)
                 {
-                    sb.Append(span.Slice(lastIndex, indexs[i] - lastIndex));
+                    sb.Append(span.Slice(lastPos, absoluteMatchIndex - lastPos));
                     sb.Append(replacement);
-                    lastIndex = matchEnd;
-
-                    indexs[i] =
-                        matchEnd <= span.Length ? span.Slice(matchEnd).IndexOf(targetSpan) : -1;
-
-                    if (indexs[i] != -1)
-                    {
-                        indexs[i] += lastIndex;
-                    }
+                    lastPos = matchEnd;
                 }
                 else
                 {
-                    var nextStart = indexs[i] + 1;
-
-                    if (nextStart >= span.Length)
-                    {
-                        break;
-                    }
-
-                    var nextIndex = span.Slice(nextStart).IndexOf(targetSpan);
-                    indexs[i] = nextIndex == -1 ? -1 : nextStart + nextIndex;
+                    sb.Append(span.Slice(lastPos, absoluteMatchIndex + 1 - lastPos));
+                    lastPos = absoluteMatchIndex + 1;
                 }
+
+                break;
             }
         }
 
-        sb.Append(span.Slice(lastIndex));
+        sb.Append(span.Slice(lastPos));
 
         return sb.ToString();
     }
 
-    public static string ReplaceWholeWord(string text, string target, string replacement)
+    public static string ReplaceWholeWord(this string text, string target, string replacement)
     {
         if (text.IsNullOrEmpty() || target.IsNullOrEmpty())
         {
