@@ -31,6 +31,11 @@ public readonly struct Centimeter
         return new Centimeter(source);
     }
 
+    public static implicit operator Centimeter(double source)
+    {
+        return new Centimeter(source);
+    }
+
     public static Centimeter operator -(Centimeter x, Centimeter y)
     {
         return new Centimeter(x._value - y._value);
