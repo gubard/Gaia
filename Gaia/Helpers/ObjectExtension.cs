@@ -4,6 +4,166 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static Memory<TResult> Select<TTaget, TResult>(
+        this ReadOnlyMemory<TTaget> span,
+        Func<TTaget, TResult> selector
+    )
+    {
+        var result = new TResult[span.Length].AsMemory();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result.Span[i] = selector(span.Span[i]);
+        }
+
+        return result;
+    }
+
+    public static Memory<TResult> Select<TTaget, TResult>(
+        this Memory<TTaget> span,
+        Func<TTaget, TResult> selector
+    )
+    {
+        var result = new TResult[span.Length].AsMemory();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result.Span[i] = selector(span.Span[i]);
+        }
+
+        return result;
+    }
+
+    public static Memory<T> Reverse<T>(this ReadOnlyMemory<T> span)
+    {
+        var result = new T[span.Length].AsMemory();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result.Span[i] = span.Span[span.Length - i - 1];
+        }
+
+        return result;
+    }
+
+    public static Memory<T> Reverse<T>(this Memory<T> source)
+    {
+        source.Span.Reverse();
+
+        return source;
+    }
+
+    public static bool All<T>(this Span<T> span, Func<T, bool> predicate)
+    {
+        foreach (var t in span)
+        {
+            if (!predicate.Invoke(t))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static bool Any<T>(this Span<T> span, Func<T, bool> predicate)
+    {
+        foreach (var t in span)
+        {
+            if (predicate.Invoke(t))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static Span<int> SelectIndexOf(this Span<string> span, ReadOnlySpan<char> source)
+    {
+        var result = new int[span.Length].AsSpan();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = source.IndexOf(span[i]);
+        }
+
+        return result;
+    }
+
+    public static Span<int> SelectIndexOf<TTaget>(
+        this Span<TTaget> span,
+        ReadOnlySpan<TTaget> source
+    )
+    {
+        var result = new int[span.Length].AsSpan();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = source.IndexOf(span[i]);
+        }
+
+        return result;
+    }
+
+    public static Span<int> SelectIndexOf<TTaget>(this Span<TTaget> span, Span<TTaget> source)
+    {
+        var result = new int[span.Length].AsSpan();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = source.IndexOf(span[i]);
+        }
+
+        return result;
+    }
+
+    public static Span<int> SelectIndexOf<TTaget, TResult>(
+        this Span<TTaget> span,
+        Span<TResult> source,
+        Func<TTaget, TResult> selector
+    )
+    {
+        var result = new int[span.Length].AsSpan();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = source.IndexOf(selector(span[i]));
+        }
+
+        return result;
+    }
+
+    public static Span<TResult> Select<TTaget, TResult>(
+        this Span<TTaget> span,
+        Func<TTaget, TResult> selector
+    )
+    {
+        var result = new TResult[span.Length].AsSpan();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result[i] = selector(span[i]);
+        }
+
+        return result;
+    }
+
+    public static Memory<TResult> SelectAsMemory<TTaget, TResult>(
+        this Span<TTaget> span,
+        Func<TTaget, TResult> selector
+    )
+    {
+        var result = new TResult[span.Length].AsMemory();
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            result.Span[i] = selector(span[i]);
+        }
+
+        return result;
+    }
+
     public static Memory<T> Concat<T>(this T[] array, ReadOnlyMemory<T> other)
     {
         var result = new T[array.Length + other.Length].AsMemory();
