@@ -4,6 +4,16 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static ReadOnlyMemory<T> AsReadOnlyMemory<T>(this IEnumerable<T> source)
+    {
+        return source.ToArray();
+    }
+
+    public static ReadOnlyMemory<T> AsReadOnlyMemory<T>(this T[] source)
+    {
+        return source;
+    }
+
     public static Memory<TResult> Select<TTaget, TResult>(
         this ReadOnlyMemory<TTaget> span,
         Func<TTaget, TResult> selector
