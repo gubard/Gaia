@@ -55,4 +55,9 @@ public readonly struct Twip
     {
         return _value.ToString();
     }
+
+    public static Twip operator -(Twip x, Twip y)
+    {
+        return new Twip(x._value - y._value);
+    }
 }
