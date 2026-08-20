@@ -253,7 +253,12 @@ public static class StringExtension
 
     public static string JoinString(this Memory<string> enumerable, string separator)
     {
-        return string.Join(separator, enumerable);
+        return string.Join(separator, enumerable.Span);
+    }
+
+    public static string JoinString(this ReadOnlyMemory<string> enumerable, string separator)
+    {
+        return string.Join(separator, enumerable.Span);
     }
 
     public static DirectoryInfo ToDir(this string path)
