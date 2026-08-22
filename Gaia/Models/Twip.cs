@@ -51,6 +51,11 @@ public readonly struct Twip
         return new Twip((int)source);
     }
 
+    public static explicit operator Twip(Emu source)
+    {
+        return source / Consts.TwipToEmu;
+    }
+
     public override string ToString()
     {
         return _value.ToString();

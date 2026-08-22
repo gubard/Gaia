@@ -9,8 +9,6 @@ public readonly struct Centimeter
         _value = value;
     }
 
-    private readonly double _value;
-
     public static explicit operator Centimeter(Twip source)
     {
         return new Centimeter((int)source / Consts.CentimeterToTwip);
@@ -18,7 +16,7 @@ public readonly struct Centimeter
 
     public static explicit operator Centimeter(Pixel source)
     {
-        return (Centimeter)(Twip)source;
+        return source / Consts.CentimeterToPixel;
     }
 
     public static implicit operator double(Centimeter source)
@@ -36,8 +34,15 @@ public readonly struct Centimeter
         return new Centimeter(source);
     }
 
+    public static explicit operator Centimeter(Emu source)
+    {
+        return source / Consts.CentimeterToEmu;
+    }
+
     public static Centimeter operator -(Centimeter x, Centimeter y)
     {
         return new Centimeter(x._value - y._value);
     }
+
+    private readonly double _value;
 }

@@ -18,11 +18,21 @@ public readonly struct Pixel
 
     public static explicit operator Pixel(Centimeter source)
     {
-        return (Pixel)(Twip)source;
+        return source * Consts.CentimeterToPixel;
     }
 
     public static implicit operator double(Pixel source)
     {
         return source._value;
+    }
+
+    public static explicit operator Pixel(Emu source)
+    {
+        return source / Consts.PixelToEmu;
+    }
+
+    public static implicit operator Pixel(double source)
+    {
+        return new Pixel(source);
     }
 }
