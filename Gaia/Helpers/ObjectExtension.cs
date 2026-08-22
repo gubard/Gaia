@@ -44,6 +44,27 @@ public static class ObjectExtension
         return result;
     }
 
+    public static Memory<TResult> AsType<TTaget, TResult>(this Memory<TTaget> span)
+        where TResult : class
+    {
+        var result = new TResult[span.Length].AsMemory();
+        var index = 0;
+
+        for (var i = 0; i < span.Length; i++)
+        {
+            var item = span.Span[i] as TResult;
+
+            if (item is null)
+            {
+                continue;
+            }
+
+            result.Span[index++] = item;
+        }
+
+        return result.Slice(0, index);
+    }
+
     public static Memory<T> Reverse<T>(this ReadOnlyMemory<T> span)
     {
         var result = new T[span.Length].AsMemory();
