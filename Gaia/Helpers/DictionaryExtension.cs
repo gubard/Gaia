@@ -31,4 +31,21 @@ public static class DictionaryExtension
 
         return x;
     }
+
+    public static TValue GetOrAdd<TKey, TValue>(
+        this Dictionary<TKey, TValue> dictionary,
+        TKey key,
+        Func<TKey, TValue> valueFactory
+    )
+        where TKey : notnull
+    {
+        if (dictionary.TryGetValue(key, out var value))
+        {
+            return value;
+        }
+
+        dictionary[key] = valueFactory(key);
+
+        return dictionary[key];
+    }
 }
