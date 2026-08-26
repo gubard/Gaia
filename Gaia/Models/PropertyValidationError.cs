@@ -75,6 +75,29 @@ public sealed class PropertyMaxSizeValidationError
     }
 }
 
+public sealed class PropertyStartWithValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
+{
+    public PropertyStartWithValidationError(string propertyName, string startWith)
+        : base(propertyName)
+    {
+        StartWith = startWith;
+    }
+
+    public string StartWith { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(StartWith) => StartWith,
+            nameof(PropertyName) => PropertyName,
+            _ => null,
+        };
+    }
+}
+
 public sealed class PropertyMinSizeValidationError
     : PropertyValidationError,
         IObjectPropertyStringValueGetter

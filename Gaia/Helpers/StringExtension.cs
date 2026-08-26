@@ -1,11 +1,55 @@
 ﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Gaia.Models;
 
 namespace Gaia.Helpers;
 
 public static class StringExtension
 {
+    public static Memory<ValidationError> ValidatePropertyPhoneNumber(
+        this string str,
+        string propertyName
+    )
+    {
+        var normalized = str.NormalizePhoneNumber();
+
+        if (normalized.IsNullOrWhiteSpace())
+        {
+            return new[] { new PropertyEmptyValidationError(propertyName) };
+        }
+
+        if (normalized.Length < 10)
+        {
+            return new[]
+            {
+                new PropertyMinSizeValidationError(propertyName, (uint)normalized.Length, 10),
+            };
+        }
+
+        if (normalized[0] == '0')
+        {
+            return new[] { new PropertyStartWithValidationError(propertyName, "0") };
+        }
+
+        return Memory<ValidationError>.Empty;
+    }
+
+    public static string NormalizePhoneNumber(this string str)
+    {
+        var result = new StringBuilder();
+
+        foreach (var c in str)
+        {
+            if (char.IsDigit(c))
+            {
+                result.Append(c);
+            }
+        }
+
+        return result.ToString();
+    }
+
     public static string ConsoleWriteLine(this string str)
     {
         Console.WriteLine(str);
