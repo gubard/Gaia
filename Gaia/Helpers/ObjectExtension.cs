@@ -4,6 +4,36 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static Memory<T> Combine<T>(this Memory<T> source,IEnumerable< Memory<T>> items)
+    {
+        Memory<T>[] array = [default,..items];
+        array[0] = source;
+        
+        return array.Combine();
+    }
+    
+    public static Memory<T> Combine<T>(this IEnumerable<Memory<T>> source)
+    {
+        var array = source.ToArray();
+        
+        return array.Combine();
+    }
+    
+    public static Memory<T> Combine<T>(this Memory<T>[] source)
+    {
+        var array = source.ToArray();
+        var result = new T[array.Sum(x=>x.Length)].AsMemory();
+        var currentIndex = 0;
+        
+        foreach (var item in array)
+        {
+            item.CopyTo(result.Slice(currentIndex));
+            currentIndex += item.Length;
+        }
+
+        return result;
+    }
+    
     public static ReadOnlyMemory<T> AsReadOnlyMemory<T>(this IEnumerable<T> source)
     {
         return source.ToArray();
