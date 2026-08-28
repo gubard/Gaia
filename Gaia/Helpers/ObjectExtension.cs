@@ -64,44 +64,59 @@ public static class ObjectExtension
     }
 
     public static Memory<TResult> Select<TTaget, TResult>(
-        this ReadOnlyMemory<TTaget> span,
+        this ReadOnlyMemory<TTaget> source,
         Func<TTaget, TResult> selector
     )
     {
-        var result = new TResult[span.Length].AsMemory();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result.Span[i] = selector(span.Span[i]);
+            return Memory<TResult>.Empty;
+        }
+
+        var result = new TResult[source.Length].AsMemory();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result.Span[i] = selector(source.Span[i]);
         }
 
         return result;
     }
 
     public static Memory<TResult> Select<TTaget, TResult>(
-        this Memory<TTaget> span,
+        this Memory<TTaget> source,
         Func<TTaget, TResult> selector
     )
     {
-        var result = new TResult[span.Length].AsMemory();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result.Span[i] = selector(span.Span[i]);
+            return Memory<TResult>.Empty;
+        }
+
+        var result = new TResult[source.Length].AsMemory();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result.Span[i] = selector(source.Span[i]);
         }
 
         return result;
     }
 
-    public static Memory<TResult> AsType<TTaget, TResult>(this Memory<TTaget> span)
+    public static Memory<TResult> AsType<TTaget, TResult>(this Memory<TTaget> source)
         where TResult : class
     {
-        var result = new TResult[span.Length].AsMemory();
+        if (source.IsEmpty)
+        {
+            return Memory<TResult>.Empty;
+        }
+
+        var result = new TResult[source.Length].AsMemory();
         var index = 0;
 
-        for (var i = 0; i < span.Length; i++)
+        for (var i = 0; i < source.Length; i++)
         {
-            var item = span.Span[i] as TResult;
+            var item = source.Span[i] as TResult;
 
             if (item is null)
             {
@@ -114,13 +129,18 @@ public static class ObjectExtension
         return result.Slice(0, index);
     }
 
-    public static Memory<T> Reverse<T>(this ReadOnlyMemory<T> span)
+    public static Memory<T> Reverse<T>(this ReadOnlyMemory<T> source)
     {
-        var result = new T[span.Length].AsMemory();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result.Span[i] = span.Span[span.Length - i - 1];
+            return Memory<T>.Empty;
+        }
+
+        var result = new T[source.Length].AsMemory();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result.Span[i] = source.Span[source.Length - i - 1];
         }
 
         return result;
@@ -128,14 +148,19 @@ public static class ObjectExtension
 
     public static Memory<T> Reverse<T>(this Memory<T> source)
     {
+        if (source.IsEmpty)
+        {
+            return Memory<T>.Empty;
+        }
+
         source.Span.Reverse();
 
         return source;
     }
 
-    public static bool All<T>(this Span<T> span, Func<T, bool> predicate)
+    public static bool All<T>(this Span<T> source, Func<T, bool> predicate)
     {
-        foreach (var t in span)
+        foreach (var t in source)
         {
             if (!predicate.Invoke(t))
             {
@@ -146,9 +171,14 @@ public static class ObjectExtension
         return true;
     }
 
-    public static bool Any<T>(this Span<T> span, Func<T, bool> predicate)
+    public static bool Any<T>(this Span<T> source, Func<T, bool> predicate)
     {
-        foreach (var t in span)
+        if (source.IsEmpty)
+        {
+            return false;
+        }
+
+        foreach (var t in source)
         {
             if (predicate.Invoke(t))
             {
@@ -159,86 +189,113 @@ public static class ObjectExtension
         return false;
     }
 
-    public static Span<int> SelectIndexOf(this Span<string> span, ReadOnlySpan<char> source)
+    public static Span<int> SelectIndexOf(this Span<string> source, ReadOnlySpan<char> target)
     {
-        var result = new int[span.Length].AsSpan();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result[i] = source.IndexOf(span[i]);
+            return Span<int>.Empty;
+        }
+
+        var result = new int[source.Length].AsSpan();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = target.IndexOf(source[i]);
         }
 
         return result;
     }
 
-    public static Span<int> SelectIndexOf<TTaget>(
-        this Span<TTaget> span,
-        ReadOnlySpan<TTaget> source
-    )
+    public static Span<int> SelectIndexOf<T>(this Span<T> source, ReadOnlySpan<T> target)
     {
-        var result = new int[span.Length].AsSpan();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result[i] = source.IndexOf(span[i]);
+            return Span<int>.Empty;
+        }
+
+        var result = new int[source.Length].AsSpan();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = target.IndexOf(source[i]);
         }
 
         return result;
     }
 
-    public static Span<int> SelectIndexOf<TTaget>(this Span<TTaget> span, Span<TTaget> source)
+    public static Span<int> SelectIndexOf<T>(this Span<T> source, Span<T> target)
     {
-        var result = new int[span.Length].AsSpan();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result[i] = source.IndexOf(span[i]);
+            return Span<int>.Empty;
+        }
+
+        var result = new int[source.Length].AsSpan();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = target.IndexOf(source[i]);
         }
 
         return result;
     }
 
     public static Span<int> SelectIndexOf<TTaget, TResult>(
-        this Span<TTaget> span,
-        Span<TResult> source,
+        this Span<TTaget> source,
+        Span<TResult> target,
         Func<TTaget, TResult> selector
     )
     {
-        var result = new int[span.Length].AsSpan();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result[i] = source.IndexOf(selector(span[i]));
+            return Span<int>.Empty;
+        }
+
+        var result = new int[source.Length].AsSpan();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = target.IndexOf(selector(source[i]));
         }
 
         return result;
     }
 
     public static Span<TResult> Select<TTaget, TResult>(
-        this Span<TTaget> span,
+        this Span<TTaget> source,
         Func<TTaget, TResult> selector
     )
     {
-        var result = new TResult[span.Length].AsSpan();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result[i] = selector(span[i]);
+            return Span<TResult>.Empty;
+        }
+
+        var result = new TResult[source.Length].AsSpan();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result[i] = selector(source[i]);
         }
 
         return result;
     }
 
     public static Memory<TResult> SelectAsMemory<TTaget, TResult>(
-        this Span<TTaget> span,
+        this Span<TTaget> source,
         Func<TTaget, TResult> selector
     )
     {
-        var result = new TResult[span.Length].AsMemory();
-
-        for (var i = 0; i < span.Length; i++)
+        if (source.IsEmpty)
         {
-            result.Span[i] = selector(span[i]);
+            return Memory<TResult>.Empty;
+        }
+
+        var result = new TResult[source.Length].AsMemory();
+
+        for (var i = 0; i < source.Length; i++)
+        {
+            result.Span[i] = selector(source[i]);
         }
 
         return result;
