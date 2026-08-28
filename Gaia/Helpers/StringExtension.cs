@@ -16,12 +16,12 @@ public static class StringExtension
 
         if (normalized.IsNullOrWhiteSpace())
         {
-            return new[] { new PropertyEmptyValidationError(propertyName) };
+            return new ValidationError[] { new PropertyEmptyValidationError(propertyName) };
         }
 
         if (normalized.Length < 10)
         {
-            return new[]
+            return new ValidationError[]
             {
                 new PropertyMinSizeValidationError(propertyName, (uint)normalized.Length, 10),
             };
@@ -29,7 +29,10 @@ public static class StringExtension
 
         if (normalized[0] == '0')
         {
-            return new[] { new PropertyStartWithValidationError(propertyName, "0") };
+            return new ValidationError[]
+            {
+                new PropertyStartWithValidationError(propertyName, "0"),
+            };
         }
 
         return Memory<ValidationError>.Empty;
