@@ -31,6 +31,15 @@ public static class ObjectExtension
         return array.Combine();
     }
 
+    public static Memory<T> Combine<T>(this ReadOnlyMemory<T> source, params Span<T> items)
+    {
+        var result = new T[source.Length + items.Length].AsMemory();
+        source.CopyTo(result);
+        items.CopyTo(result.Slice(source.Length).Span);
+
+        return result;
+    }
+
     public static Memory<T> Combine<T>(this IEnumerable<Memory<T>> source)
     {
         var array = source.ToArray();
