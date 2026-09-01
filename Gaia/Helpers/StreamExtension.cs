@@ -17,4 +17,13 @@ public static class StreamExtension
 
         return buffer;
     }
+
+    public static MemoryStream CopyToMemory(this Stream stream)
+    {
+        var buffer = new MemoryStream();
+        stream.CopyTo(buffer);
+        buffer.Position = 0;
+
+        return buffer;
+    }
 }

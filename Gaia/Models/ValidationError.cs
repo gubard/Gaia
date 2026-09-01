@@ -2,6 +2,36 @@ namespace Gaia.Models;
 
 public abstract class ValidationError;
 
+public sealed class StringValidationError : ValidationError
+{
+    public StringValidationError(string value)
+    {
+        Value = value;
+    }
+
+    public string Value { get; }
+
+    public override string ToString()
+    {
+        return Value;
+    }
+}
+
+public sealed class FileCorruptedValidationError : ValidationError
+{
+    public FileCorruptedValidationError(string path)
+    {
+        Path = path;
+    }
+
+    public string Path { get; }
+
+    public override string ToString()
+    {
+        return $"File corrupted \"{Path}\"";
+    }
+}
+
 public sealed class ConnectionValidationError : ValidationError
 {
     public ConnectionValidationError(string resurce)

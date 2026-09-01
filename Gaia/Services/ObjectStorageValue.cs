@@ -6,7 +6,7 @@ public interface IObjectStorageValue
     public static abstract string GetObjectStorageKey(Guid id);
 }
 
-public abstract class ObjectStorageValue<TSelf> : IObjectStorageValue
+public abstract record ObjectStorageValue<TSelf> : IObjectStorageValue
 {
     public static string GetObjectStorageKey()
     {

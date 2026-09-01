@@ -42,7 +42,14 @@ public static class EnumerableExtension
         }
     }
 
-    public static async ValueTask<IEnumerable<T>> ToEnumerableAsync<T>(
+    public static ConfiguredValueTaskAwaitable<IEnumerable<T>> ToEnumerableAsync<T>(
+        this ConfiguredCancelableAsyncEnumerable<T> enumerable
+    )
+    {
+        return enumerable.ToEnumerableCore().ConfigureAwait(false);
+    }
+
+    private static async ValueTask<IEnumerable<T>> ToEnumerableCore<T>(
         this ConfiguredCancelableAsyncEnumerable<T> enumerable
     )
     {
@@ -54,5 +61,26 @@ public static class EnumerableExtension
         }
 
         return result;
+    }
+
+    public static ConfiguredValueTaskAwaitable<T[]> ToArrayAsync<T>(
+        this ConfiguredCancelableAsyncEnumerable<T> enumerable
+    )
+    {
+        return enumerable.ToArrayCore().ConfigureAwait(false);
+    }
+
+    private static async ValueTask<T[]> ToArrayCore<T>(
+        this ConfiguredCancelableAsyncEnumerable<T> enumerable
+    )
+    {
+        var result = new List<T>();
+
+        await foreach (var item in enumerable)
+        {
+            result.Add(item);
+        }
+
+        return result.ToArray();
     }
 }

@@ -6,24 +6,31 @@ namespace Gaia.Services;
 
 public interface IStorageService
 {
-    DirectoryInfo GetAppDirectory();
+    DirectoryInfo GetAppConfigDirectory();
     DirectoryInfo GetDbDirectory();
+    DirectoryInfo GetAppDictionary();
 }
 
 public sealed class StorageService : IStorageService
 {
+    private readonly DirectoryInfo _appDirectory;
+    private readonly DirectoryInfo _dbDirectory;
+    private readonly DirectoryInfo _appConfigDirectory;
+
     public StorageService(string appName, ILogger<StorageService> logger)
     {
+        _appDirectory = new DirectoryInfo(AppContext.BaseDirectory);
+
 #if DEBUG
-        _appDirectory = CreateAppDirectory(appName).Combine("Debug");
+        _appConfigDirectory = CreateAppConfigDirectory(appName).Combine("Debug");
 #else
-        _appDirectory = CreateAppDirectory(appName);
+        _appConfigDirectory = CreateAppConfigDirectory(appName);
 #endif
         _dbDirectory = CreateDbDirectory(appName);
 
-        if (!_appDirectory.Exists)
+        if (!_appConfigDirectory.Exists)
         {
-            _appDirectory.Create();
+            _appConfigDirectory.Create();
         }
 
         if (!_dbDirectory.Exists)
@@ -33,11 +40,12 @@ public sealed class StorageService : IStorageService
 
         logger.InitAppDirectory(_appDirectory);
         logger.InitDbDirectory(_dbDirectory);
+        logger.InitConfigDirectory(_appConfigDirectory);
     }
 
-    public DirectoryInfo GetAppDirectory()
+    public DirectoryInfo GetAppConfigDirectory()
     {
-        return _appDirectory;
+        return _appConfigDirectory;
     }
 
     public DirectoryInfo GetDbDirectory()
@@ -45,8 +53,10 @@ public sealed class StorageService : IStorageService
         return _dbDirectory;
     }
 
-    private readonly DirectoryInfo _appDirectory;
-    private readonly DirectoryInfo _dbDirectory;
+    public DirectoryInfo GetAppDictionary()
+    {
+        return _appDirectory;
+    }
 
     private DirectoryInfo CreateDbDirectory(string appName)
     {
@@ -77,7 +87,7 @@ public sealed class StorageService : IStorageService
         };
     }
 
-    private DirectoryInfo CreateAppDirectory(string appName)
+    private DirectoryInfo CreateAppConfigDirectory(string appName)
     {
         switch (OsHelper.OsType)
         {
