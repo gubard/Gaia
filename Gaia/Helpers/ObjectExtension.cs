@@ -4,7 +4,7 @@ namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
-    public static Memory<T> Combine<T>(
+    public static Memory<T> Concat<T>(
         this IEnumerable<Memory<T>> source,
         params IEnumerable<Memory<T>> items
     )
@@ -23,15 +23,15 @@ public static class ObjectExtension
         return result;
     }
 
-    public static Memory<T> Combine<T>(this Memory<T> source, params IEnumerable<Memory<T>> items)
+    public static Memory<T> Concat<T>(this Memory<T> source, params IEnumerable<Memory<T>> items)
     {
         Memory<T>[] array = [default, .. items];
         array[0] = source;
 
-        return array.Combine();
+        return array.Concat();
     }
 
-    public static Memory<T> Combine<T>(this ReadOnlyMemory<T> source, params Span<T> items)
+    public static Memory<T> Concat<T>(this ReadOnlyMemory<T> source, params Span<T> items)
     {
         var result = new T[source.Length + items.Length].AsMemory();
         source.CopyTo(result);
@@ -40,14 +40,14 @@ public static class ObjectExtension
         return result;
     }
 
-    public static Memory<T> Combine<T>(this IEnumerable<Memory<T>> source)
+    public static Memory<T> Concat<T>(this IEnumerable<Memory<T>> source)
     {
         var array = source.ToArray();
 
-        return array.Combine();
+        return array.Concat();
     }
 
-    public static Memory<T> Combine<T>(this Memory<T>[] source)
+    public static Memory<T> Concat<T>(this Memory<T>[] source)
     {
         var array = source.ToArray();
         var result = new T[array.Sum(x => x.Length)].AsMemory();
@@ -72,7 +72,7 @@ public static class ObjectExtension
         return source;
     }
 
-    public static Memory<TResult> Select<TTaget, TResult>(
+    public static Memory<TResult> SelectAsSpan<TTaget, TResult>(
         this ReadOnlyMemory<TTaget> source,
         Func<TTaget, TResult> selector
     )
@@ -92,7 +92,7 @@ public static class ObjectExtension
         return result;
     }
 
-    public static Memory<TResult> Select<TTaget, TResult>(
+    public static Memory<TResult> SelectAsSpan<TTaget, TResult>(
         this Memory<TTaget> source,
         Func<TTaget, TResult> selector
     )
@@ -270,7 +270,7 @@ public static class ObjectExtension
         return result;
     }
 
-    public static Span<TResult> Select<TTaget, TResult>(
+    public static Span<TResult> SelectAsSpan<TTaget, TResult>(
         this Span<TTaget> source,
         Func<TTaget, TResult> selector
     )
@@ -288,6 +288,83 @@ public static class ObjectExtension
         }
 
         return result;
+    }
+
+    public static Span<T> SelectMany<T>(this Span<IEnumerable<T>> source)
+    {
+        if (source.IsEmpty)
+        {
+            return Span<T>.Empty;
+        }
+
+        var arrays = source.SelectAsSpan(x => x.ToArray());
+        var result = new T[arrays.Sum(x => x.Length)].AsSpan();
+
+        var currentIndex = 0;
+
+        foreach (var array in arrays)
+        {
+            array.CopyTo(result.Slice(currentIndex));
+            currentIndex += array.Length;
+        }
+
+        return result;
+    }
+
+    public static Memory<T> SelectMany<T>(this Memory<IEnumerable<T>> source)
+    {
+        return source.IsEmpty
+            ? Memory<T>.Empty
+            : source.SelectAsSpan(x => x.ToArray().AsMemory()).SelectMany();
+    }
+
+    public static Memory<T> SelectMany<T>(this Memory<Memory<T>> source)
+    {
+        if (source.IsEmpty)
+        {
+            return Memory<T>.Empty;
+        }
+
+        var result = new T[source.Sum(x => x.Length)].AsMemory();
+
+        var currentIndex = 0;
+
+        foreach (var array in source.Span)
+        {
+            array.CopyTo(result.Slice(currentIndex));
+            currentIndex += array.Length;
+        }
+
+        return result;
+    }
+
+    public static Memory<T> Distinct<T>(this Memory<T> source)
+    {
+        if (source.Length <= 1)
+        {
+            return source;
+        }
+
+        var result = new T[source.Length].AsMemory();
+        var uniqueCount = 0;
+
+        if (result.Span.Contains(default))
+        {
+            uniqueCount++;
+        }
+
+        for (var i = 1; i < source.Length; i++)
+        {
+            if (result.Span.Contains(source.Span[i]))
+            {
+                continue;
+            }
+
+            result.Span[uniqueCount] = source.Span[i];
+            uniqueCount++;
+        }
+
+        return result.Slice(0, uniqueCount);
     }
 
     public static Memory<TResult> SelectAsMemory<TTaget, TResult>(
@@ -331,6 +408,18 @@ public static class ObjectExtension
         var sum = 0;
 
         foreach (var item in span)
+        {
+            sum += selector(item);
+        }
+
+        return sum;
+    }
+
+    public static int Sum<T>(this Memory<T> source, Func<T, int> selector)
+    {
+        var sum = 0;
+
+        foreach (var item in source.Span)
         {
             sum += selector(item);
         }

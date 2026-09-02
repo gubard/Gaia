@@ -169,3 +169,26 @@ public sealed class PropertyEqualValueValidationError
         };
     }
 }
+
+public sealed class PropertyEqualValidationError
+    : PropertyValidationError,
+        IObjectPropertyStringValueGetter
+{
+    public PropertyEqualValidationError(string propertyName, string propertyName2)
+        : base(propertyName)
+    {
+        PropertyName2 = propertyName2;
+    }
+
+    public string PropertyName2 { get; }
+
+    public string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(PropertyName) => PropertyName,
+            nameof(PropertyName2) => PropertyName2,
+            _ => null,
+        };
+    }
+}
