@@ -4,6 +4,6 @@ public static class TimeSpanExtension
 {
     public static TimeOnly ToTimeOnly(this TimeSpan timeSpan)
     {
-        return new TimeOnly(timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
+        return new(timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
     }
 }

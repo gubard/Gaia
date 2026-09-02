@@ -31,7 +31,7 @@ public readonly struct UnitLength
 
     public static UnitLength FromCentimeter(double centimeter)
     {
-        return new UnitLength(
+        return new(
             centimeter,
             (int)(centimeter * CentimeterToEmu),
             (int)(centimeter * CentimeterToTwip),
@@ -41,17 +41,17 @@ public readonly struct UnitLength
 
     public static UnitLength FromEmu(int emu)
     {
-        return new UnitLength(emu / CentimeterToEmu, emu, emu / TwipToEmu, emu / PixelToEmu);
+        return new(emu / CentimeterToEmu, emu, emu / TwipToEmu, emu / PixelToEmu);
     }
 
     public static UnitLength FromTwip(int twip)
     {
-        return new UnitLength(twip / CentimeterToTwip, twip * TwipToEmu, twip, twip / PixelToTwip);
+        return new(twip / CentimeterToTwip, twip * TwipToEmu, twip, twip / PixelToTwip);
     }
 
     public static UnitLength FromPixel(double pixel)
     {
-        return new UnitLength(
+        return new(
             pixel / CentimeterToPixel,
             (int)(pixel * PixelToEmu),
             (int)(pixel * PixelToTwip),

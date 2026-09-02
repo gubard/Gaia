@@ -19,7 +19,7 @@ public sealed class StorageService : IStorageService
 
     public StorageService(string appName, ILogger<StorageService> logger)
     {
-        _appDirectory = new DirectoryInfo(AppContext.BaseDirectory);
+        _appDirectory = new(AppContext.BaseDirectory);
 
 #if DEBUG
         _appConfigDirectory = CreateAppConfigDirectory(appName).Combine("Debug");

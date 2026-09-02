@@ -272,7 +272,7 @@ public static class StringExtension
     {
         if (str.IsNullOrWhiteSpace())
         {
-            return new string(' ', length);
+            return new(' ', length);
         }
 
         if (str.Length >= length)

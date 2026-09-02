@@ -6,7 +6,7 @@ public static class DateOnlyExtension
     {
         var day = Math.Min(DateTime.DaysInMonth(year, date.Month), date.Day);
 
-        return new DateOnly(year, date.Month, day);
+        return new(year, date.Month, day);
     }
 
     public static DateOnly WithDay(this DateOnly date, int day)
