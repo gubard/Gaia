@@ -72,7 +72,7 @@ public static class ObjectExtension
         return source;
     }
 
-    public static Memory<TResult> SelectAsSpan<TTaget, TResult>(
+    public static Memory<TResult> SelectAsMemory<TTaget, TResult>(
         this ReadOnlyMemory<TTaget> source,
         Func<TTaget, TResult> selector
     )
@@ -92,7 +92,7 @@ public static class ObjectExtension
         return result;
     }
 
-    public static Memory<TResult> SelectAsSpan<TTaget, TResult>(
+    public static Memory<TResult> SelectAsMemory<TTaget, TResult>(
         this Memory<TTaget> source,
         Func<TTaget, TResult> selector
     )
@@ -315,7 +315,7 @@ public static class ObjectExtension
     {
         return source.IsEmpty
             ? Memory<T>.Empty
-            : source.SelectAsSpan(x => x.ToArray().AsMemory()).SelectMany();
+            : source.SelectAsMemory(x => x.ToArray().AsMemory()).SelectMany();
     }
 
     public static Memory<T> SelectMany<T>(this Memory<Memory<T>> source)
