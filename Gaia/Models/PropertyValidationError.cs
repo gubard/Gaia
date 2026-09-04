@@ -15,11 +15,25 @@ public abstract class PropertyValidationError : ValidationError
 public sealed class PropertyZeroValidationError(string propertyName)
     : PropertyValidationError(propertyName);
 
+public sealed class PropertyDateInFutureValidationError(string propertyName)
+    : PropertyValidationError(propertyName);
+
 public sealed class PropertyEmptyValidationError(string propertyName)
     : PropertyValidationError(propertyName);
 
 public sealed class PropertyInvalidValidationError(string propertyName)
     : PropertyValidationError(propertyName);
+
+public sealed class PropertyMoreThenValidationError : PropertyValidationError
+{
+    public PropertyMoreThenValidationError(string propertyName, string targetPropertyName)
+        : base(propertyName)
+    {
+        TargetPropertyName = targetPropertyName;
+    }
+
+    public string TargetPropertyName { get; }
+}
 
 public sealed class PropertyValueValidationError : PropertyValidationError
 {
