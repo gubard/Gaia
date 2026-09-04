@@ -32,7 +32,8 @@ public static class EnumHelper
 public static class EnumHelper<T>
     where T : Enum
 {
-    public static readonly IEnumerable<T> Values = Enum.GetValuesAsUnderlyingType(typeof(T))
+    public static readonly ReadOnlyMemory<T> Values = EnumHelper
+        .GetValues(typeof(T))
         .Cast<T>()
         .ToArray();
 }
