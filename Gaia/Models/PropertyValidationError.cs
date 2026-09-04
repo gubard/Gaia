@@ -2,7 +2,7 @@ using Gaia.Services;
 
 namespace Gaia.Models;
 
-public abstract class PropertyValidationError : ValidationError
+public abstract class PropertyValidationError : ValidationError, IObjectPropertyStringValueGetter
 {
     protected PropertyValidationError(string propertyName)
     {
@@ -10,6 +10,15 @@ public abstract class PropertyValidationError : ValidationError
     }
 
     public string PropertyName { get; }
+
+    public virtual string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(PropertyName) => PropertyName,
+            _ => null,
+        };
+    }
 }
 
 public sealed class PropertyZeroValidationError(string propertyName)
@@ -33,6 +42,16 @@ public sealed class PropertyMoreThenValidationError : PropertyValidationError
     }
 
     public string TargetPropertyName { get; }
+
+    public override string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(PropertyName) => PropertyName,
+            nameof(TargetPropertyName) => TargetPropertyName,
+            _ => null,
+        };
+    }
 }
 
 public sealed class PropertyValueValidationError : PropertyValidationError
@@ -63,9 +82,7 @@ public sealed class PropertyTheDateHasExpiredValidationError : PropertyValidatio
     public DateOnly ExpireDate { get; }
 }
 
-public sealed class PropertyMaxSizeValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyMaxSizeValidationError : PropertyValidationError
 {
     public PropertyMaxSizeValidationError(string propertyName, ulong actualSize, ulong maxSize)
         : base(propertyName)
@@ -77,7 +94,7 @@ public sealed class PropertyMaxSizeValidationError
     public ulong MaxSize { get; }
     public ulong ActualSize { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
@@ -89,9 +106,7 @@ public sealed class PropertyMaxSizeValidationError
     }
 }
 
-public sealed class PropertyStartWithValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyStartWithValidationError : PropertyValidationError
 {
     public PropertyStartWithValidationError(string propertyName, string startWith)
         : base(propertyName)
@@ -101,7 +116,7 @@ public sealed class PropertyStartWithValidationError
 
     public string StartWith { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
@@ -112,9 +127,7 @@ public sealed class PropertyStartWithValidationError
     }
 }
 
-public sealed class PropertyMinSizeValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyMinSizeValidationError : PropertyValidationError
 {
     public PropertyMinSizeValidationError(string propertyName, ulong actualSize, ulong minSize)
         : base(propertyName)
@@ -126,7 +139,7 @@ public sealed class PropertyMinSizeValidationError
     public ulong MinSize { get; }
     public ulong ActualSize { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
@@ -138,9 +151,7 @@ public sealed class PropertyMinSizeValidationError
     }
 }
 
-public sealed class PropertyNotEqualPropertyValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyNotEqualPropertyValidationError : PropertyValidationError
 {
     public PropertyNotEqualPropertyValidationError(string propertyName, string secondPropertyName)
         : base(propertyName)
@@ -150,7 +161,7 @@ public sealed class PropertyNotEqualPropertyValidationError
 
     public string SecondPropertyName { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
@@ -161,9 +172,7 @@ public sealed class PropertyNotEqualPropertyValidationError
     }
 }
 
-public sealed class PropertyEqualValueValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyEqualValueValidationError : PropertyValidationError
 {
     public PropertyEqualValueValidationError(string propertyName, object value)
         : base(propertyName)
@@ -173,7 +182,7 @@ public sealed class PropertyEqualValueValidationError
 
     public object Value { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
@@ -184,9 +193,7 @@ public sealed class PropertyEqualValueValidationError
     }
 }
 
-public sealed class PropertyEqualValidationError
-    : PropertyValidationError,
-        IObjectPropertyStringValueGetter
+public sealed class PropertyEqualValidationError : PropertyValidationError
 {
     public PropertyEqualValidationError(string propertyName, string propertyName2)
         : base(propertyName)
@@ -196,7 +203,7 @@ public sealed class PropertyEqualValidationError
 
     public string PropertyName2 { get; }
 
-    public string? FindStringValue(string propertyName)
+    public override string? FindStringValue(string propertyName)
     {
         return propertyName switch
         {
