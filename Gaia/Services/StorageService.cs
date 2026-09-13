@@ -8,7 +8,7 @@ public interface IStorageService
 {
     DirectoryInfo GetAppConfigDirectory();
     DirectoryInfo GetDbDirectory();
-    DirectoryInfo GetAppDictionary();
+    DirectoryInfo GetAppDirectory();
 }
 
 public sealed class StorageService : IStorageService
@@ -53,7 +53,7 @@ public sealed class StorageService : IStorageService
         return _dbDirectory;
     }
 
-    public DirectoryInfo GetAppDictionary()
+    public DirectoryInfo GetAppDirectory()
     {
         return _appDirectory;
     }
