@@ -40,17 +40,24 @@ public static class StringExtension
 
     public static string NormalizePhoneNumber(this string str)
     {
-        var result = new StringBuilder();
+        var builder = new StringBuilder();
 
         foreach (var c in str)
         {
             if (char.IsDigit(c))
             {
-                result.Append(c);
+                builder.Append(c);
             }
         }
 
-        return result.ToString();
+        var result = builder.ToString();
+
+        if (result[0] == '0')
+        {
+            result = $"38{result}";
+        }
+
+        return result;
     }
 
     public static string ConsoleWriteLine(this string str)
