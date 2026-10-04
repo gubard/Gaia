@@ -24,9 +24,24 @@ public readonly struct UnitLength
         Pixel = pixel;
     }
 
+    public static UnitLength Min(UnitLength left, UnitLength right)
+    {
+        return FromPixel(Math.Min(left.Pixel, right.Pixel));
+    }
+
     public static UnitLength SubTwip(UnitLength left, UnitLength right)
     {
         return FromTwip(left.Twip - right.Twip);
+    }
+
+    public static UnitLength DivisionPixel(UnitLength left, UnitLength right)
+    {
+        return FromPixel(left.Pixel / right.Pixel);
+    }
+
+    public static UnitLength MultiplicationPixel(UnitLength left, UnitLength right)
+    {
+        return FromPixel(left.Pixel * right.Pixel);
     }
 
     public static UnitLength FromCentimeter(double centimeter)

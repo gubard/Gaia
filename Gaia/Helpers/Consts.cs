@@ -4,6 +4,8 @@ namespace Gaia.Helpers;
 
 public static class Consts
 {
-    public static readonly UnitLength A4Width = UnitLength.FromTwip(11906);
-    public static readonly UnitLength A4Height = UnitLength.FromTwip(16838);
+    public static readonly GSize A4PageSize = new GSize(
+        UnitLength.FromTwip(11906),
+        UnitLength.FromTwip(16838)
+    );
 }
