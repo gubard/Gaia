@@ -21,6 +21,6 @@ public static class DateTimeExtension
 
     public static string MonthToUaString(this DateTime dateTime)
     {
-        return dateTime.ToString("MMMM", new CultureInfo("uk-UA"));
+        return dateTime.ToString("MMMM", CultureHelper.Ukranian);
     }
 }
