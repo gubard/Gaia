@@ -16,5 +16,15 @@ public sealed class EmptyValidationErrors : IValidationErrors
 
 public sealed class DefaultValidationErrors : IValidationErrors
 {
+    public DefaultValidationErrors()
+    {
+        ValidationErrors = [];
+    }
+
+    public DefaultValidationErrors(ValidationError error)
+    {
+        ValidationErrors = [error];
+    }
+
     public List<ValidationError> ValidationErrors { get; } = new();
 }
