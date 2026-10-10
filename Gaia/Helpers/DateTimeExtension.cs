@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Gaia.Helpers;
+﻿namespace Gaia.Helpers;
 
 public static class DateTimeExtension
 {
