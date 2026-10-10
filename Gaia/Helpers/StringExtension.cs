@@ -16,7 +16,7 @@ public static class StringExtension
 
         if (normalized.IsNullOrWhiteSpace())
         {
-            return new ValidationError[] { new PropertyEmptyValidationError(propertyName) };
+            return Memory<ValidationError>.Empty;
         }
 
         if (normalized.Length < 10)
