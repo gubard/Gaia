@@ -63,19 +63,16 @@ public sealed class StorageService : IStorageService
         return OsHelper.OsType switch
         {
             Os.Windows => new(AppContext.BaseDirectory),
-            Os.MacOs
-            or Os.Linux
-            or Os.Browser
-            or Os.FreeBsd
-            or Os.iOS
-            or Os.MacCatalyst
-            or Os.TvOs
-            or Os.WatchOs
-            or Os.Wasi => Environment
+            Os.MacOs or Os.Linux or Os.FreeBsd or Os.MacCatalyst => Environment
+                .SpecialFolder.UserProfile.GetDir()
+                .Combine(".local")
+                .Combine("share")
+                .Combine(appName),
+            Os.Browser or Os.TvOs or Os.WatchOs or Os.Wasi => Environment
                 .SpecialFolder.UserProfile.GetDir()
                 .Combine("Databases")
                 .Combine(appName),
-            Os.Android => Environment
+            Os.Android or Os.iOS => Environment
                 .SpecialFolder.Personal.GetDir()
                 .Combine("Databases")
                 .Combine(appName),
