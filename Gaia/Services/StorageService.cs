@@ -62,8 +62,8 @@ public sealed class StorageService : IStorageService
     {
         return OsHelper.OsType switch
         {
-            Os.Windows
-            or Os.MacOs
+            Os.Windows => new(AppContext.BaseDirectory),
+            Os.MacOs
             or Os.Linux
             or Os.Browser
             or Os.FreeBsd
