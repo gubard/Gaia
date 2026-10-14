@@ -8,26 +8,19 @@ namespace Gaia.Helpers;
 public static class StringExtension
 {
     public static Memory<ValidationError> ValidatePropertyPhoneNumber(
-        this string str,
+        this string phoneNumber,
         string propertyName
     )
     {
-        var normalized = str.NormalizePhoneNumber();
-
-        if (normalized.IsNullOrWhiteSpace())
-        {
-            return Memory<ValidationError>.Empty;
-        }
-
-        if (normalized.Length < 10)
+        if (phoneNumber.Length < 10)
         {
             return new ValidationError[]
             {
-                new PropertyMinSizeValidationError(propertyName, (uint)normalized.Length, 10),
+                new PropertyMinSizeValidationError(propertyName, (uint)phoneNumber.Length, 10),
             };
         }
 
-        if (normalized[0] == '0')
+        if (phoneNumber[0] == '0')
         {
             return new ValidationError[]
             {
@@ -51,6 +44,11 @@ public static class StringExtension
         }
 
         var result = builder.ToString();
+
+        if (result.Length == 0)
+        {
+            return result;
+        }
 
         if (result[0] == '0')
         {
