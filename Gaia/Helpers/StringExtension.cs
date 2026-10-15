@@ -33,6 +33,11 @@ public static class StringExtension
 
     public static string NormalizePhoneNumber(this string str)
     {
+        if (str.IsNullOrWhiteSpace())
+        {
+            return string.Empty;
+        }
+        
         var builder = new StringBuilder();
 
         foreach (var c in str)
