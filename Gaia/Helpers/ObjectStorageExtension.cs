@@ -11,7 +11,9 @@ public static class ObjectStorageExtension
     )
         where T : IObjectStorageValue, IStaticFactory<T>
     {
-        return storage.LoadAsync<T>(T.GetObjectStorageKey(), ct);
+        var key = T.GetObjectStorageKey();
+
+        return storage.LoadAsync<T>(key, ct);
     }
 
     public static ConfiguredValueTaskAwaitable<T> LoadAsync<T>(
