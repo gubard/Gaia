@@ -12,6 +12,16 @@ public static class DateTimeExtension
         return null;
     }
 
+    public static DateTime? ToAddDaysOrNull(this DateTime? dateTime, double days)
+    {
+        if (dateTime.HasValue)
+        {
+            return dateTime.Value.AddDays(days);
+        }
+
+        return null;
+    }
+
     public static DateOnly ToDateOnly(this DateTime dateTime)
     {
         return DateOnly.FromDateTime(dateTime);
