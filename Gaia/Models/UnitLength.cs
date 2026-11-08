@@ -50,6 +50,11 @@ public readonly struct UnitLength
         return FromPixel(left.Pixel * right.Pixel);
     }
 
+    public static UnitLength MultiplicationTwip(UnitLength left, int right)
+    {
+        return FromPixel(left.Twip * right);
+    }
+
     public static UnitLength FromCentimeter(double centimeter)
     {
         return new(
