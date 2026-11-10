@@ -1,3 +1,4 @@
+using Gaia.Helpers;
 using Gaia.Services;
 
 namespace Gaia.Models;
@@ -32,6 +33,27 @@ public sealed class PropertyEmptyValidationError(string propertyName)
 
 public sealed class PropertyInvalidValidationError(string propertyName)
     : PropertyValidationError(propertyName);
+
+public sealed class PropertyMustContainsPartsValidationError : PropertyValidationError
+{
+    public PropertyMustContainsPartsValidationError(string propertyName, string[] parts)
+        : base(propertyName)
+    {
+        Parts = parts;
+    }
+
+    public string[] Parts { get; }
+
+    public override string? FindStringValue(string propertyName)
+    {
+        return propertyName switch
+        {
+            nameof(Parts) => Parts.JoinString(", "),
+            nameof(PropertyName) => PropertyName,
+            _ => null,
+        };
+    }
+}
 
 public sealed class PropertyMoreThenValidationError : PropertyValidationError
 {
