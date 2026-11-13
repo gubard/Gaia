@@ -30,7 +30,7 @@ public sealed class AutoDictionary<TKey, TItem>
 
     public TItem[] ToItemsArray()
     {
-        return _items.Values.ToArray();
+        return [.. _items.Values];
     }
 
     private readonly Dictionary<TKey, TItem> _items = new();

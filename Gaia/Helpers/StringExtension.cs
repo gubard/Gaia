@@ -37,7 +37,7 @@ public static class StringExtension
         {
             return string.Empty;
         }
-        
+
         var builder = new StringBuilder();
 
         foreach (var c in str)

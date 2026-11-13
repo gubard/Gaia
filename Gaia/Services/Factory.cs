@@ -8,7 +8,7 @@ public interface IStaticServiceFactory<in TInput, out TOutput>
     static abstract TOutput Create(TInput input, IServiceProvider serviceProvider);
 }
 
-public interface IStaticFactory< out TOutput>
+public interface IStaticFactory<out TOutput>
 {
     static abstract TOutput Create();
 }

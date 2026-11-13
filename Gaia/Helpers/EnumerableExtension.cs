@@ -81,6 +81,6 @@ public static class EnumerableExtension
             result.Add(item);
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 }
