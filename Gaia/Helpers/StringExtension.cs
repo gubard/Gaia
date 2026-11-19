@@ -63,6 +63,18 @@ public static class StringExtension
         return result;
     }
 
+    public static string Duplicate(this string str, ushort count)
+    {
+        var builder = new StringBuilder();
+
+        for (var i = 0; i < count; i++)
+        {
+            builder.Append(str);
+        }
+
+        return builder.ToString();
+    }
+
     public static string ConsoleWriteLine(this string str)
     {
         Console.WriteLine(str);
