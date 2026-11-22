@@ -9,10 +9,7 @@ public static class HttpClientExtension
 {
     extension(HttpClient httpClient)
     {
-        public async ValueTask<(
-            HttpResponseMessage? response,
-            ValidationError[] errors
-        )> TryPostAsJsonAsync<TValue>(
+        public async ValueTask<Result<HttpResponseMessage>> TryPostAsJsonAsync<TValue>(
             [StringSyntax(StringSyntaxAttribute.Uri)] string requestUri,
             TValue value,
             JsonSerializerOptions options,
@@ -21,17 +18,18 @@ public static class HttpClientExtension
         {
             try
             {
-                return (
-                    await httpClient.PostAsJsonAsync(requestUri, value, options, cancellationToken),
-                    []
+                var response = await httpClient.PostAsJsonAsync(
+                    requestUri,
+                    value,
+                    options,
+                    cancellationToken
                 );
+
+                return response;
             }
             catch
             {
-                return (
-                    null,
-                    [new ConnectionValidationError($"{httpClient.BaseAddress}{requestUri}")]
-                );
+                return new ConnectionValidationError($"{httpClient.BaseAddress}{requestUri}");
             }
         }
 

@@ -2,6 +2,16 @@ namespace Gaia.Models;
 
 public abstract class ValidationError;
 
+public sealed class ValidationErrors : ValidationError
+{
+    public ValidationErrors(ValidationError[] errors)
+    {
+        Errors = errors;
+    }
+
+    public ReadOnlyMemory<ValidationError> Errors { get; }
+}
+
 public sealed class StringValidationError : ValidationError
 {
     public StringValidationError(string value)

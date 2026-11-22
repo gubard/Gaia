@@ -1,9 +1,21 @@
 using System.Runtime.CompilerServices;
+using Gaia.Models;
 
 namespace Gaia.Helpers;
 
 public static class ObjectExtension
 {
+    public static Option<T> ToOption<T>(this T? value)
+        where T : class
+    {
+        if (value is null)
+        {
+            return Option<T>.None;
+        }
+
+        return new Option<T>(value);
+    }
+
     public static Memory<T> Concat<T>(
         this IEnumerable<Memory<T>> source,
         params IEnumerable<Memory<T>> items

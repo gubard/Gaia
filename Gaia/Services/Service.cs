@@ -8,12 +8,15 @@ using Gaia.Models;
 namespace Gaia.Services;
 
 public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse>
-    where TGetResponse : IValidationErrors, new()
-    where TPostResponse : IValidationErrors, new()
+    where TGetResponse : new()
+    where TPostResponse : new()
 {
-    ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(TGetRequest request, CancellationToken ct);
+    ConfiguredValueTaskAwaitable<Result<TGetResponse>> GetAsync(
+        TGetRequest request,
+        CancellationToken ct
+    );
 
-    ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+    ConfiguredValueTaskAwaitable<Result<TPostResponse>> PostAsync(
         Guid idempotentId,
         TPostRequest request,
         CancellationToken ct
@@ -23,16 +26,16 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
 public interface IHttpService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse>
     : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>,
         IHealthCheck
-    where TGetResponse : IValidationErrors, new()
-    where TPostResponse : IValidationErrors, new();
+    where TGetResponse : new()
+    where TPostResponse : new();
 
 public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>
     : IHttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>
-    where TGetResponse : IValidationErrors, new()
-    where TPostResponse : IValidationErrors, new()
+    where TGetResponse : new()
+    where TPostResponse : new()
     where TGetRequest : new()
 {
-    public ConfiguredValueTaskAwaitable<TGetResponse> GetAsync(
+    public ConfiguredValueTaskAwaitable<Result<TGetResponse>> GetAsync(
         TGetRequest request,
         CancellationToken ct
     )
@@ -40,7 +43,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return _tryPolicyService.TryAsync(() => GetRequestAsync(request, ct).ConfigureAwait(false));
     }
 
-    public ConfiguredValueTaskAwaitable<TPostResponse> PostAsync(
+    public ConfiguredValueTaskAwaitable<Result<TPostResponse>> PostAsync(
         Guid idempotentId,
         TPostRequest request,
         CancellationToken ct
@@ -51,7 +54,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         );
     }
 
-    public ConfiguredValueTaskAwaitable<IValidationErrors> HealthCheckAsync(CancellationToken ct)
+    public ConfiguredValueTaskAwaitable<Result> HealthCheckAsync(CancellationToken ct)
     {
         return HealthCheckCore(ct).ConfigureAwait(false);
     }
@@ -76,38 +79,44 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
     private readonly ITryPolicyService _tryPolicyService;
     private readonly IFactory<Memory<HttpHeader>> _headersFactory;
 
-    private async ValueTask<IValidationErrors> HealthCheckCore(CancellationToken ct)
+    private async ValueTask<Result> HealthCheckCore(CancellationToken ct)
     {
         var response = await GetAsync(CreateHealthCheckGetRequest(), ct);
 
-        return response;
+        return response switch
+        {
+            TGetResponse => Success.Default,
+            ValidationError error => error,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
     }
 
-    private async ValueTask<TGetResponse> GetRequestAsync(TGetRequest request, CancellationToken ct)
+    private async ValueTask<Result<TGetResponse>> GetRequestAsync(
+        TGetRequest request,
+        CancellationToken ct
+    )
     {
         using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        var (hrm, errors) = await client
+        var massage = await client
             .SetHeaders(headers.Span)
             .TryPostAsJsonAsync(RouteHelper.Get, request, _options, ct);
 
-        if (hrm is null)
+        if (massage is ValidationError error)
         {
-            var result = new TGetResponse();
-            result.ValidationErrors.AddRange(errors);
-
-            return result;
+            return error;
         }
 
-        using var httpResponse = hrm;
+        using var httpResponse = massage switch
+        {
+            HttpResponseMessage hrm => hrm,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
 
         if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
-            var result = new TGetResponse();
-            result.ValidationErrors.Add(new UnauthorizedValidationError());
-
-            return result;
+            return new UnauthorizedValidationError();
         }
 
         httpResponse.EnsureSuccessStatusCode();
@@ -116,7 +125,7 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         return response.ThrowIfNull();
     }
 
-    private async ValueTask<TPostResponse> PostRequestAsync(
+    private async ValueTask<Result<TPostResponse>> PostRequestAsync(
         Guid idempotentId,
         TPostRequest request,
         CancellationToken ct
@@ -125,27 +134,25 @@ public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPost
         using var client = _httpClientFactory.Create();
         var headers = _headersFactory.Create();
 
-        var (hrm, errors) = await client
+        var massage = await client
             .SetHeaders(headers.Span)
             .AddHeader(new(HttpHeader.IdempotentId, idempotentId.ToString()))
             .TryPostAsJsonAsync(RouteHelper.Post, request, _options, ct);
 
-        if (hrm is null)
+        if (massage is ValidationError error)
         {
-            var result = new TPostResponse();
-            result.ValidationErrors.AddRange(errors);
-
-            return result;
+            return error;
         }
 
-        using var httpResponse = hrm;
+        using var httpResponse = massage switch
+        {
+            HttpResponseMessage hrm => hrm,
+            _ => throw new ArgumentOutOfRangeException(),
+        };
 
         if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
         {
-            var result = new TPostResponse();
-            result.ValidationErrors.Add(new UnauthorizedValidationError());
-
-            return result;
+            return new UnauthorizedValidationError();
         }
 
         httpResponse.EnsureSuccessStatusCode();

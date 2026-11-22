@@ -1,8 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
+using Gaia.Models;
 
 namespace Gaia.Services;
 
 public interface IHealthCheck
 {
-    ConfiguredValueTaskAwaitable<IValidationErrors> HealthCheckAsync(CancellationToken ct);
+    ConfiguredValueTaskAwaitable<Result> HealthCheckAsync(CancellationToken ct);
 }
