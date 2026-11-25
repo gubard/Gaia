@@ -212,15 +212,11 @@ public static class StringExtension
             return str;
         }
 
-        return string.Create(
-            str.Length,
-            str,
-            (span, state) =>
-            {
-                span[0] = char.ToUpperInvariant(state[0]);
-                state.AsSpan(1).CopyTo(span.Slice(1));
-            }
-        );
+        return string.Create(str.Length, str, (span, state) =>
+        {
+            span[0] = char.ToUpperInvariant(state[0]);
+            state.AsSpan(1).CopyTo(span.Slice(1));
+        });
     }
 
     public static string ToLowerFirstChar(this string str)
@@ -230,15 +226,11 @@ public static class StringExtension
             return str;
         }
 
-        return string.Create(
-            str.Length,
-            str,
-            (span, state) =>
-            {
-                span[0] = char.ToLowerInvariant(state[0]);
-                state.AsSpan(1).CopyTo(span.Slice(1));
-            }
-        );
+        return string.Create(str.Length, str, (span, state) =>
+        {
+            span[0] = char.ToLowerInvariant(state[0]);
+            state.AsSpan(1).CopyTo(span.Slice(1));
+        });
     }
 
     public static string RemoveDuplicateSpaces(this string input)
@@ -269,25 +261,21 @@ public static class StringExtension
             return input;
         }
 
-        return string.Create(
-            finalLength,
-            input,
-            (dest, src) =>
-            {
-                var destIndex = 0;
-                var innerLastWasSpace = false;
+        return string.Create(finalLength, input, (dest, src) =>
+        {
+            var destIndex = 0;
+            var innerLastWasSpace = false;
 
-                for (var i = 0; i < src.Length; i++)
+            for (var i = 0; i < src.Length; i++)
+            {
+                var isSpace = src[i] == ' ';
+                if (!isSpace || !innerLastWasSpace)
                 {
-                    var isSpace = src[i] == ' ';
-                    if (!isSpace || !innerLastWasSpace)
-                    {
-                        dest[destIndex++] = src[i];
-                    }
-                    innerLastWasSpace = isSpace;
+                    dest[destIndex++] = src[i];
                 }
+                innerLastWasSpace = isSpace;
             }
-        );
+        });
     }
 
     public static string GetLengthWithSpace(this string str, ushort length)
