@@ -335,6 +335,11 @@ public static class StringExtension
         return new(path);
     }
 
+    public static FileInfo ToFile(this string path)
+    {
+        return new(path);
+    }
+
     public static bool IsEmail(this string str)
     {
         return StringHelper.EmailRegex.IsMatch(str);
