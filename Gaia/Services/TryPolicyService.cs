@@ -9,11 +9,14 @@ public interface ITryPolicyService
 {
     Result Try(Func<Result> func);
     ConfiguredValueTaskAwaitable<Result> TryAsync(Func<ConfiguredValueTaskAwaitable<Result>> func);
-    Result<T> Try<T>(Func<Result<T>> func);
+
+    Result<T> Try<T>(Func<Result<T>> func)
+        where T : notnull;
 
     ConfiguredValueTaskAwaitable<Result<T>> TryAsync<T>(
         Func<ConfiguredValueTaskAwaitable<Result<T>>> func
-    );
+    )
+        where T : notnull;
 }
 
 public sealed class TryPolicyService : ITryPolicyService
@@ -68,6 +71,7 @@ public sealed class TryPolicyService : ITryPolicyService
     }
 
     public Result<T> Try<T>(Func<Result<T>> func)
+        where T : notnull
     {
         var count = 0;
         var exceptions = new Exception[_tryCount];
@@ -111,6 +115,7 @@ public sealed class TryPolicyService : ITryPolicyService
     public ConfiguredValueTaskAwaitable<Result<T>> TryAsync<T>(
         Func<ConfiguredValueTaskAwaitable<Result<T>>> func
     )
+        where T : notnull
     {
         return TryCore(func).ConfigureAwait(false);
     }
@@ -158,6 +163,7 @@ public sealed class TryPolicyService : ITryPolicyService
     private async ValueTask<Result<T>> TryCore<T>(
         Func<ConfiguredValueTaskAwaitable<Result<T>>> func
     )
+        where T : notnull
     {
         var count = 0;
         var exceptions = new Exception[_tryCount];

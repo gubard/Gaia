@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Gaia.Helpers;
@@ -8,8 +7,8 @@ using Gaia.Models;
 namespace Gaia.Services;
 
 public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse>
-    where TGetResponse : new()
-    where TPostResponse : new()
+    where TGetResponse : notnull, new()
+    where TPostResponse : notnull, new()
 {
     ConfiguredValueTaskAwaitable<Result<TGetResponse>> GetAsync(
         TGetRequest request,
@@ -26,14 +25,14 @@ public interface IService<in TGetRequest, in TPostRequest, TGetResponse, TPostRe
 public interface IHttpService<in TGetRequest, in TPostRequest, TGetResponse, TPostResponse>
     : IService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>,
         IHealthCheck
-    where TGetResponse : new()
-    where TPostResponse : new();
+    where TGetResponse : notnull, new()
+    where TPostResponse : notnull, new();
 
 public abstract class HttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>
     : IHttpService<TGetRequest, TPostRequest, TGetResponse, TPostResponse>
-    where TGetResponse : new()
-    where TPostResponse : new()
-    where TGetRequest : new()
+    where TGetResponse : notnull, new()
+    where TPostResponse : notnull, new()
+    where TGetRequest : notnull, new()
 {
     public ConfiguredValueTaskAwaitable<Result<TGetResponse>> GetAsync(
         TGetRequest request,
