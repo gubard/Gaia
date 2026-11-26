@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Gaia.Models;
 
 public readonly struct Success
@@ -18,13 +20,23 @@ public union Result<T>(T, ValidationError)
         };
     }
 
-    public T GetValue()
+    public bool TryGet(
+        [NotNullWhen(true)] out T? value,
+        [NotNullWhen(false)] out ValidationError? error
+    )
     {
-        return this switch
+        if (this is ValidationError e)
         {
-            T value => value,
-            _ => throw new ArgumentOutOfRangeException(),
-        };
+            error = e;
+            value = default;
+
+            return false;
+        }
+
+        error = null;
+        value = (T)Value;
+
+        return true;
     }
 }
 
